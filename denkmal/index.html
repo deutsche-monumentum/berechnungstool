@@ -2438,12 +2438,10 @@ var IB_MWST = 19;
     if(alt !== null)   setze('ib-altsubstanz-satz', alt, 'pct1');
     setze('ib-kfw-kapitalbedarf',    zahlOder(w.kfw_betrag), 'euro');
     setze('ib-kfw-tilgungszuschuss', zahlOder(w.kfw_zuschuss), 'euro');
-    /* Eigenkapital = Notar + Grunderwerbsteuer (+ Bauzeitzinsen nach Steuern), je nach Grundeinstellung */
-    var basis = (zahlOder(e.kaufpreis) || 0) + (zahlOder(e.stellplatz_preis) || 0);
-    var nk = basis * (window.ibZahl($('ib-notarkosten-satz')) + window.ibZahl($('ib-grest-satz'))) / 100;
-    if(einst('eigenkapital') !== 'nk')
-      nk += basis * window.ibZahl($('ib-bauzeitzinsen-satz')) / 100 * IB_REGELN.bauzinsNachSteuern;
-    setze('ib-eigenkapital', Math.round(nk), 'euro');
+    /* Eigenkapital rechnet sich bei jeder Berechnung automatisch (siehe ibBerechnen);
+       neue Wohnung = wieder automatisch, Art laut Grundeinstellung */
+    window.ibEkMitBauzins = einst('eigenkapital') !== 'nk';
+    window.ibEkFrei = false;
   }
 
   /* ---- Auswahlfelder ------------------------------------------------- */
@@ -2473,7 +2471,7 @@ var IB_MWST = 19;
     if(p) einheitFelder(p.einheiten[selE.selectedIndex]);
   });
   var reset = $('ib-btn-reset');
-  if(reset) reset.addEventListener('click', function(){ if(IB_PROJEKTE.length){ ueberschussWahl(); window.ibBerechnen(); } });
+  if(reset) reset.addEventListener('click', function(){ window.ibEkFrei = false; if(IB_PROJEKTE.length){ ueberschussWahl(); window.ibBerechnen(); } });
 
   /* Bis die Daten da sind */
   fill(selP, ['wird geladen …']); fill(selE, ['—']);
@@ -2817,6 +2815,9 @@ window.ibKreis();
   /* Berechnung beim Verlassen des Feldes */
   var doc = document.querySelector('.ib-doc');
   if(doc){
+    doc.addEventListener('input', function(e){
+      if(e.target && e.target.id === 'ib-eigenkapital') window.ibEkFrei = /\d/.test(e.target.textContent);
+    });
     doc.addEventListener('change', function(e){
       if(e.target.matches('input, select, textarea')) window.ibBerechnen();
     });
@@ -2832,6 +2833,7 @@ window.ibKreis();
   /* ---- Zuruecksetzen ---- */
   var btnReset = document.getElementById('ib-btn-reset');
   if(btnReset) btnReset.addEventListener('click', function(){
+    window.ibEkFrei = false;
     /* Projekt und Wohnung bleiben stehen – zurück geht es auf deren Ausgangswerte */
     /* Überschüsse wie in den Grundeinstellungen (ohne Datenbank: Sondertilgung) */
     var ersteWahl = document.getElementById('ib-wahl-sondertilgung');
@@ -3553,6 +3555,16 @@ window.ibZahl = function(el){
 
   window.ibBerechnen = function(){
     var e = eingaben();
+    /* Eigenkapital automatisch = Kaufnebenkosten laut Grundeinstellung:
+       „nk“ = Notar + Grunderwerbsteuer, sonst zusätzlich Beratungshonorar + Bauzeitzinsen.
+       Trägt jemand einen eigenen Betrag ein, gilt dieser (ibEkFrei), bis „Zurücksetzen“
+       oder eine andere Wohnung gewählt wird. */
+    if(!window.ibEkFrei){
+      var nk0 = ibRechneEingaben(e);
+      e.eigenkapital = Math.round(nk0.notar + nk0.grest +
+        (window.ibEkMitBauzins !== false ? nk0.beratung + nk0.bauzinsen : 0));
+      window.ibZeige('ib-eigenkapital', e.eigenkapital);
+    }
     var a = ibRechneAlles(e), ein = a.eingaben, J = a.jahre, R = a.ergebnis;
 
     /* ---- Blatt 1 ---- */
@@ -3688,6 +3700,7 @@ window.ibZahl = function(el){
   /* Zuruecksetzen: auch die beschreibbaren Felder auf ihren Ausgangswert */
   var reset = $('ib-btn-reset');
   if(reset) reset.addEventListener('click', function(){
+    window.ibEkFrei = false;
     document.querySelectorAll('.ib-in[contenteditable="true"]').forEach(function(el){
       if(el.dataset.start !== undefined) el.textContent = el.dataset.start;
     });

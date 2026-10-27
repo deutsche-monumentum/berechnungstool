@@ -2459,17 +2459,10 @@ var IB_MWST = 19;
     if(boden === null && neu !== null) boden = 100 - neu;
     if(boden !== null) setze('ib-bodenanteil-satz', boden, 'pct1');
     setze('ib-kfw-kapitalbedarf',    zahlOder(w.kfw_betrag), 'euro');
-    /* Eigenkapital = Notar + Grunderwerbsteuer (+ Bauzeitzinsen nach Steuern), je nach Grundeinstellung –
-       gleiche Formeln wie im Rechenkern (Blatt „Eingaben“) */
-    var kp = zahlOder(e.kaufpreis) || 0, sp = zahlOder(e.stellplatz_preis) || 0, basis = kp + sp;
-    var sel = $('ib-grest-label'), land = sel ? (sel.value || '').replace(/^GrESt\s+/, '') : '';
-    var grestSatz = (typeof IB_GREST !== 'undefined' && IB_GREST[land] !== undefined) ? IB_GREST[land] : window.ibZahl($('ib-grest-satz'));
-    var notar = basis * window.ibZahl($('ib-notarkosten-satz')) / 100, grest = basis * grestSatz / 100;
-    var beratung = basis * window.ibZahl($('ib-beratungshonorar-satz')) / 100;
-    var nk = notar + grest;
-    if(einst('eigenkapital') !== 'nk')
-      nk += (basis + (zahlOder(e.moebel) || 0) + notar + grest + beratung) * window.ibZahl($('ib-bauzeitzinsen-satz')) / 100 * IB_REGELN.bauzinsNachSteuern;
-    setze('ib-eigenkapital', Math.round(nk), 'euro');
+    /* Eigenkapital rechnet sich bei jeder Berechnung automatisch (siehe ibBerechnen);
+       neue Wohnung = wieder automatisch, Art laut Grundeinstellung */
+    window.ibEkMitBauzins = einst('eigenkapital') !== 'nk';
+    window.ibEkFrei = false;
   }
 
   /* ---- Auswahlfelder ------------------------------------------------- */
@@ -2499,7 +2492,7 @@ var IB_MWST = 19;
     if(p) einheitFelder(p.einheiten[selE.selectedIndex]);
   });
   var reset = $('ib-btn-reset');
-  if(reset) reset.addEventListener('click', function(){ if(IB_PROJEKTE.length){ ueberschussWahl(); window.ibBerechnen(); } });
+  if(reset) reset.addEventListener('click', function(){ window.ibEkFrei = false; if(IB_PROJEKTE.length){ ueberschussWahl(); window.ibBerechnen(); } });
 
   /* Bis die Daten da sind */
   fill(selP, ['wird geladen …']); fill(selE, ['—']);
@@ -2840,6 +2833,9 @@ window.ibKreis();
   /* Berechnung beim Verlassen des Feldes */
   var doc = document.querySelector('.ib-doc');
   if(doc){
+    doc.addEventListener('input', function(e){
+      if(e.target && e.target.id === 'ib-eigenkapital') window.ibEkFrei = /\d/.test(e.target.textContent);
+    });
     doc.addEventListener('change', function(e){
       if(e.target.matches('input, select, textarea')) window.ibBerechnen();
     });
@@ -2855,6 +2851,7 @@ window.ibKreis();
   /* ---- Zuruecksetzen ---- */
   var btnReset = document.getElementById('ib-btn-reset');
   if(btnReset) btnReset.addEventListener('click', function(){
+    window.ibEkFrei = false;
     /* Projekt und Wohnung bleiben stehen – zurück geht es auf deren Ausgangswerte */
     /* Überschüsse wie in den Grundeinstellungen (ohne Datenbank: Sondertilgung) */
     var ersteWahl = document.getElementById('ib-wahl-sondertilgung');
@@ -3257,7 +3254,9 @@ function ibRechneEingaben(e){
   r.notar           = basis * e.notarSatz / 100;                   /* B23 */
   r.grest           = basis * e.grestSatz / 100;                   /* B25 */
   r.beratung        = basis * e.beratungSatz / 100;                /* B27 */
-  r.bauzinsen       = (basis + e.moebel + r.notar + r.grest + r.beratung)
+  /* Bauzeitzinsen nur auf den finanzierten Teil (Kaufpreis + Stellplatz + Möbel);
+     Notar, GrESt und Beratung trägt das Eigenkapital (Änderung 27.10., Excel B29 rechnete mit NK) */
+  r.bauzinsen       = (basis + e.moebel)
                     * e.bauzinsSatz / 100 * IB_REGELN.bauzinsNachSteuern;   /* B29 */
   r.kaufpreisNK     = r.notar + r.grest + r.beratung + e.stellplatz + e.kaufpreis
                     + e.moebel + r.bauzinsen;                      /* B31 */
@@ -3617,6 +3616,16 @@ window.ibZahl = function(el){
 
   window.ibBerechnen = function(){
     var e = eingaben();
+    /* Eigenkapital automatisch = Kaufnebenkosten laut Grundeinstellung:
+       „nk“ = Notar + Grunderwerbsteuer, sonst zusätzlich Beratungshonorar + Bauzeitzinsen.
+       Trägt jemand einen eigenen Betrag ein, gilt dieser (ibEkFrei), bis „Zurücksetzen“
+       oder eine andere Wohnung gewählt wird. */
+    if(!window.ibEkFrei){
+      var nk0 = ibRechneEingaben(e);
+      e.eigenkapital = Math.round(nk0.notar + nk0.grest +
+        (window.ibEkMitBauzins !== false ? nk0.beratung + nk0.bauzinsen : 0));
+      window.ibZeige('ib-eigenkapital', e.eigenkapital);
+    }
     var a = ibRechneAlles(e), ein = a.eingaben, J = a.jahre, R = a.ergebnis;
 
     /* ---- Blatt 1 ---- */
@@ -3762,6 +3771,7 @@ window.ibZahl = function(el){
   /* Zuruecksetzen: auch die beschreibbaren Felder auf ihren Ausgangswert */
   var reset = $('ib-btn-reset');
   if(reset) reset.addEventListener('click', function(){
+    window.ibEkFrei = false;
     document.querySelectorAll('.ib-in[contenteditable="true"]').forEach(function(el){
       if(el.dataset.start !== undefined) el.textContent = el.dataset.start;
     });

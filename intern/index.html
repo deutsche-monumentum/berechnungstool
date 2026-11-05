@@ -181,6 +181,15 @@ button, input, select, textarea{ font: inherit; color: inherit; }
 
 .seiteninhalt{ padding: 22px 26px 60px; max-width: 1180px; }
 .tafel{ display:none; }
+/* ---- Finanzierungsvorschlag ---- */
+.fv-zeile{ grid-template-columns: minmax(0,1fr) 280px; }
+.fv-tabelle td{ vertical-align: middle; }
+.fv-tabelle .wert{ width: 120px; }
+.fv-klein{ display:block; font-size: 12px; color: var(--txt-leise); font-weight: 400; }
+.fv-summe td{ border-top: 1px solid #000; font-weight: 700; font-family: var(--num); }
+.fv-meldungen{ margin-top: 12px; display: grid; gap: 6px; }
+.fv-meldungen div{ padding: 8px 12px; font-size: 13.5px; border-left: 3px solid #b4443f; background: #fbeeee; }
+.fv-meldungen div.ok{ border-left-color: var(--balken); background: var(--fill); }
 .tafel.an{ display:block; }
 
 .hinweis{
@@ -557,6 +566,7 @@ body.vorfuehren .re-zurueck-klein:hover{ opacity: 1; background: rgba(255,255,25
     <nav class="nav" id="nav">
       <span class="nav-titel">Kunden</span>
       <button data-ziel="kunden">Kundenakten <span class="zahl" id="n-kunden"></span></button>
+      <button data-ziel="finanzierung">Finanzierungsvorschlag</button>
 
       <span class="nav-titel">Objektdaten</span>
       <button data-ziel="projekte" class="an">Projekte <span class="zahl" id="n-projekte"></span></button>
@@ -623,6 +633,73 @@ body.vorfuehren .re-zurueck-klein:hover{ opacity: 1; background: rgba(255,255,25
 
         <div class="ku-abc" id="ku-abc"></div>
         <div id="ku-liste"></div>
+      </section>
+
+      <!-- ============== FINANZIERUNGSVORSCHLAG (Bankangebot nachbauen) ============== -->
+      <section class="tafel" id="t-finanzierung">
+        <div class="hinweis">
+          Bankangebot des Kunden nachbauen: Wohnung wählen, Kundendaten und Darlehen aus dem Angebot eintragen.
+          Die Darlehensbeträge gelten genau wie im Angebot – das Eigenkapital ergibt sich daraus
+          (Kaufpreis inkl. Nebenkosten − Summe der Darlehen). Leere Felder bei Zins, Tilgung oder Zinsbindung = Vorgabe aus den Grundeinstellungen.
+        </div>
+
+        <div class="panel">
+          <div class="panel-kopf">Wohnung und Kunde</div>
+          <div class="panel-koerper">
+            <div class="raster">
+              <div>
+                <span class="gruppentitel">Wohnung</span>
+                <div class="zeile fv-zeile"><span class="bez">Projekt</span><select class="wert wert--links" id="fv-projekt"></select></div>
+                <div class="zeile fv-zeile"><span class="bez">Wohnung</span><select class="wert wert--links" id="fv-wohnung"></select></div>
+                <div class="zeile"><span class="bez">Kaufpreis Wohnung</span><input class="wert" id="fv-kaufpreis" readonly></div>
+              </div>
+              <div>
+                <span class="gruppentitel">Kunde</span>
+                <div class="zeile fv-zeile"><span class="bez">Anrede</span><select class="wert wert--links" id="fv-anrede"><option>Herr</option><option>Frau</option><option value="">–</option></select></div>
+                <div class="zeile fv-zeile"><span class="bez">Titel</span><input class="wert wert--links" id="fv-titel" placeholder="z. B. Dr."></div>
+                <div class="zeile fv-zeile"><span class="bez">Vorname</span><input class="wert wert--links" id="fv-vorname"></div>
+                <div class="zeile fv-zeile"><span class="bez">Nachname</span><input class="wert wert--links" id="fv-nachname"></div>
+                <div class="zeile"><span class="bez">Zu versteuerndes Einkommen p.a.</span><input class="wert" id="fv-zve" inputmode="numeric" placeholder="€"></div>
+                <div class="zeile"><span class="bez">Verheiratet (Splitting)</span><select class="wert" id="fv-verheiratet"><option value="ja">Ja</option><option value="nein">Nein</option></select></div>
+                <div class="zeile"><span class="bez">Kirchensteuer</span><select class="wert" id="fv-kirche"><option value="nein">Nein</option><option value="ja">Ja</option></select></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-kopf">Darlehen laut Bankangebot</div>
+          <div class="panel-koerper">
+            <div class="tabellenhuelle">
+              <table class="fv-tabelle">
+                <thead><tr><th></th><th>Betrag</th><th>Nominalzins %</th><th>Anf. Tilgung %</th><th>Zinsbindung Jahre</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Hauptdarlehen</b></td>
+                    <td><input class="wert fv-z" id="fv-hd-betrag" inputmode="numeric" placeholder="€"></td>
+                    <td><input class="wert fv-z" id="fv-hd-zins"></td>
+                    <td><input class="wert fv-z" id="fv-hd-tilgung"></td>
+                    <td><input class="wert fv-z" id="fv-hd-bindung"></td></tr>
+                  <tr><td><b>KfW-Darlehen</b><small class="fv-klein">höchstens 150.000 €</small></td>
+                    <td><input class="wert fv-z" id="fv-kfw-betrag" inputmode="numeric" placeholder="€"></td>
+                    <td><input class="wert fv-z" id="fv-kfw-zins"></td>
+                    <td><input class="wert fv-z" id="fv-kfw-tilgung"></td>
+                    <td><input class="wert fv-z" id="fv-kfw-bindung"></td></tr>
+                  <tr><td><b>Weiteres Darlehen</b><small class="fv-klein">nur bei Bedarf</small></td>
+                    <td><input class="wert fv-z" id="fv-d2-betrag" inputmode="numeric" placeholder="€"></td>
+                    <td><input class="wert fv-z" id="fv-d2-zins"></td>
+                    <td><input class="wert fv-z" id="fv-d2-tilgung"></td>
+                    <td><input class="wert fv-z" id="fv-d2-bindung"></td></tr>
+                  <tr class="fv-summe"><td><b>Summe Darlehen</b></td><td id="fv-summe">–</td><td colspan="3"></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="fv-meldungen" id="fv-meldungen"></div>
+            <div class="knopfreihe">
+              <button class="knopf" type="button" id="fv-erstellen">Berechnung erstellen</button>
+              <button class="knopf knopf--leise" type="button" id="fv-leeren">Maske leeren</button>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- ============== BERECHNUNG (ausführliches Rechentool) ============== -->
@@ -1406,12 +1483,12 @@ function zeigeTafel(ziel){
   $('seitentitel').textContent = b.dataset.titel || b.firstChild.textContent.trim();
   /* Projektauswahl oben nur dort, wo man in einem Projekt arbeitet */
   document.querySelector('.projektwahl').style.display = ['preisliste', 'import'].indexOf(ziel) >= 0 ? '' : 'none';
-  var ohneSpeichern = ['projekte', 'import', 'protokoll', 'kunden', 'webdenkmal', 'webqng'].indexOf(ziel) >= 0;
+  var ohneSpeichern = ['projekte', 'import', 'protokoll', 'kunden', 'finanzierung', 'webdenkmal', 'webqng'].indexOf(ziel) >= 0;
   $('speichern').style.visibility = ohneSpeichern ? 'hidden' : '';
   ({ projekte:zeichneProjekte, preisliste:zeichnePreisliste, import:zeichneImport,
      grundeinstellungen:zeichneGrund, grenzwerte:zeichneGrenz, zugaenge:zeichneZugaenge,
      protokoll:function(){ S.protokollSeite = 0; ladeProtokoll(false); },
-     kunden:zeichneKunden, berechnung:zeigeBerechnung,
+     kunden:zeichneKunden, finanzierung:zeichneFinanzierung, berechnung:zeigeBerechnung,
      webdenkmal:function(){ zeigeWeb('denkmal'); }, webqng:function(){ zeigeWeb('qng'); } })[ziel]();
   merkeVerlauf(ziel);
 }
@@ -3162,6 +3239,165 @@ async function speichereBerechnung(){
   RE.offen = { id: r.id, kunde_id: r.kunde_id, titel: r.titel, geaendert: r.geaendert };
   await ladeKunden();
   return 1;
+}
+
+
+/* =========================================================================
+   FINANZIERUNGSVORSCHLAG – Bankangebot des Kunden im ausführlichen Tool nachbauen
+   Darlehensbeträge gelten genau wie im Angebot; das Eigenkapital ergibt sich
+   rückwärts: Kaufpreis inkl. Nebenkosten − Summe der Darlehen.
+   Tilgungsbeginn immer 1. Jahr (Vereinfachung: Vermietung ab 1.1.).
+   ========================================================================= */
+var FV_KFW_MAX = 150000;
+function fvZahl(id){
+  var t = String(($(id) || {}).value || '').trim();
+  if (!t) return null;
+  t = t.replace(/[€%\s]/g, '');
+  if (/,/.test(t)) t = t.replace(/\./g, '').replace(',', '.');      /* 4,3 oder 1.234,56 */
+  else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');   /* 150.000 */
+  var n = Number(t);
+  return isNaN(n) ? null : n;
+}
+function fvEuro(n){ return Math.round(n).toLocaleString('de-DE') + ' €'; }
+function fvPct(n, st){ return n.toLocaleString('de-DE', { minimumFractionDigits: st, maximumFractionDigits: 2 }) + ' %'; }
+function fvProjekte(){
+  return S.projekte.filter(function(p){
+    return p.oeffentlich !== false && p.aktiv !== false && (p.verwendung === 'ausfuehrlich' || p.auch_ausfuehrlich);
+  });
+}
+var fvSort = new Intl.Collator('de', { numeric: true, sensitivity: 'base' });
+function fvWohnungen(pid){
+  return S.einheiten.filter(function(e){ return e.projekt_id === pid && e.im_angebot !== false; })
+    .sort(function(a, b){ return fvSort.compare(a.nummer, b.nummer); });
+}
+function fvWohnungFuellen(){
+  var pid = $('fv-projekt').value, alt = $('fv-wohnung').value;
+  $('fv-wohnung').innerHTML = fvWohnungen(pid).map(function(e){
+    return '<option value="' + esc(e.nummer) + '">' + esc(e.nummer) + (e.wohnflaeche ? ' · ' + Number(e.wohnflaeche).toLocaleString('de-DE') + ' m²' : '') + '</option>';
+  }).join('');
+  if (alt && Array.prototype.some.call($('fv-wohnung').options, function(o){ return o.value === alt; })) $('fv-wohnung').value = alt;
+  fvKaufpreis();
+}
+function fvKaufpreis(){
+  var e = fvWohnungen($('fv-projekt').value).filter(function(x){ return x.nummer === $('fv-wohnung').value; })[0];
+  $('fv-kaufpreis').value = e && e.kaufpreis ? fvEuro(Number(e.kaufpreis)) : '';
+}
+function fvPruefen(){
+  var m = [], hd = fvZahl('fv-hd-betrag') || 0, kfw = fvZahl('fv-kfw-betrag') || 0, d2 = fvZahl('fv-d2-betrag') || 0;
+  var summe = hd + kfw + d2;
+  $('fv-summe').textContent = summe ? fvEuro(summe) : '–';
+  if (kfw > FV_KFW_MAX) m.push('KfW-Darlehen über ' + fvEuro(FV_KFW_MAX) + ' – bitte prüfen.');
+  if (!hd) m.push('Betrag des Hauptdarlehens fehlt.');
+  if (!$('fv-nachname').value.trim()) m.push('Nachname fehlt.');
+  if (!fvZahl('fv-zve')) m.push('Zu versteuerndes Einkommen fehlt.');
+  return m;
+}
+function fvMeldungen(liste, ok){
+  $('fv-meldungen').innerHTML = (liste || []).map(function(t){ return '<div>' + esc(t) + '</div>'; }).join('') +
+    (ok ? '<div class="ok">' + esc(ok) + '</div>' : '');
+}
+var FV_GEBUNDEN = false;
+function zeichneFinanzierung(){
+  var sel = $('fv-projekt'), alt = sel.value;
+  sel.innerHTML = fvProjekte().map(function(p){ return '<option value="' + esc(p.id) + '">' + esc(p.deckname) + '</option>'; }).join('');
+  if (alt && Array.prototype.some.call(sel.options, function(o){ return o.value === alt; })) sel.value = alt;
+  fvWohnungFuellen();
+  /* Grundeinstellungen als Platzhalter zeigen */
+  var g = function(k){ var v = ['alle', 'ausfuehrlich', 'denkmal'].map(function(t){ return einstWert(k, null, t); }).filter(function(x){ return x !== undefined && x !== null && x !== ''; })[0]; return (v === undefined || v === null || v === '') ? '' : String(v).replace('.', ','); };
+  [['hd', 'hd_zins', 'hd_tilgung', 'zinsbindung'], ['kfw', 'kfw_zins', 'kfw_tilgung', 'kfw_zinsbindung'], ['d2', 'd2_zins', 'd2_tilgung', 'zinsbindung']].forEach(function(d){
+    $('fv-' + d[0] + '-zins').placeholder = g(d[1]) || g('hd_zins');
+    $('fv-' + d[0] + '-tilgung').placeholder = g(d[2]) || g('hd_tilgung');
+    $('fv-' + d[0] + '-bindung').placeholder = g(d[3]) || g('zinsbindung');
+  });
+  fvPruefen();
+  if (FV_GEBUNDEN) return;
+  FV_GEBUNDEN = true;
+  sel.addEventListener('change', fvWohnungFuellen);
+  $('fv-wohnung').addEventListener('change', fvKaufpreis);
+  document.querySelectorAll('#t-finanzierung input, #t-finanzierung select').forEach(function(f){
+    f.addEventListener('input', function(){ fvPruefen(); });
+  });
+  $('fv-leeren').addEventListener('click', function(){
+    document.querySelectorAll('#t-finanzierung input:not([readonly])').forEach(function(f){ f.value = ''; });
+    fvMeldungen([]); fvPruefen();
+  });
+  $('fv-erstellen').addEventListener('click', function(){
+    fvErstellen().catch(function(err){ melde(fehlertext(err), true); });
+  });
+}
+
+async function fvErstellen(){
+  var fehler = fvPruefen().filter(function(t){ return !/^KfW/.test(t); });
+  if (fehler.length){ fvMeldungen(fvPruefen()); return; }
+  var p = S.projekte.filter(function(x){ return x.id === $('fv-projekt').value; })[0];
+  var wohnung = $('fv-wohnung').value;
+  if (!p || !wohnung){ fvMeldungen(['Bitte Projekt und Wohnung wählen.']); return; }
+
+  /* 1. Neue Berechnung mit Projekt und Wohnung */
+  RE.offen = { id: null, kunde_id: null };
+  var w = rechner(true);
+  zeigeTafel('berechnung');
+  w = await w;
+  var zaehl = w.IB_ZAEHLDAUER; w.IB_ZAEHLDAUER = 0;    /* ohne Hochzählen, damit die Werte sofort stimmen */
+  try {
+  w.ibEinsetzen(w.ibStart);
+  var doc = w.document;
+  var ps = doc.getElementById('ib-projekt');
+  if (!Array.prototype.some.call(ps.options, function(o){ return o.value === p.deckname; }))
+    throw new Error('Projekt „' + p.deckname + '“ steht nicht im ausführlichen Tool');
+  ps.value = p.deckname; ps.dispatchEvent(new Event('change', { bubbles: true }));
+  var es = doc.getElementById('ib-einheit');
+  if (!Array.prototype.some.call(es.options, function(o){ return o.value === wohnung; }))
+    throw new Error('Wohnung ' + wohnung + ' steht nicht im ausführlichen Tool (Häkchen „Ausführlich“ in der Preisliste?)');
+  es.value = wohnung; es.dispatchEvent(new Event('change', { bubbles: true }));
+  if (w.ibBerechnen) w.ibBerechnen();
+
+  /* 2. Kundendaten und Darlehen eintragen */
+  var d = w.ibSammeln(), f = d.felder, a = d.auswahl;
+  var name = [$('fv-anrede').value, $('fv-titel').value.trim(), $('fv-vorname').value.trim(), $('fv-nachname').value.trim()].filter(Boolean).join(' ');
+  f['ib-name'] = name;
+  var zve = fvZahl('fv-zve');
+  f['ib-zve-1-4'] = fvEuro(zve); f['ib-zve-ab'] = fvEuro(zve);
+  a['ib-splitting'] = $('fv-verheiratet').value === 'ja' ? 'Ja' : 'Nein';
+  var land = p.bundesland || '';
+  var kiCode = $('fv-kirche').value === 'ja' ? land : '';
+  a['ib-kirchensteuer-label'] = kiCode;
+  d.texte = d.texte || {};
+  d.texte['ib-kirchensteuer-satz'] = fvPct(w.ibKistSatz ? w.ibKistSatz(kiCode) : 0, 1);
+  var setzeDarlehen = function(k, toolK, betragId){
+    var b = fvZahl('fv-' + k + '-betrag'), z = fvZahl('fv-' + k + '-zins'), t = fvZahl('fv-' + k + '-tilgung'), j = fvZahl('fv-' + k + '-bindung');
+    if (betragId) f[betragId] = b ? fvEuro(b) : '-    €';
+    if (z !== null){ f['ib-' + toolK + '-nominalzins'] = fvPct(z, 2); f['ib-' + toolK + '-anschlusszins'] = fvPct(z, 2); }
+    if (t !== null) f['ib-' + toolK + '-tilgung'] = fvPct(t, 1);
+    if (j !== null) f['ib-' + toolK + '-festschreibung'] = Math.round(j) + (Math.round(j) === 1 ? ' Jahr' : ' Jahre');
+    f['ib-' + toolK + '-tilgungsbeginn'] = '1. Jahr';
+    return b || 0;
+  };
+  var hd  = setzeDarlehen('hd', 'hd', null);                     /* Darlehen 1 = Rest, ergibt sich aus dem Eigenkapital */
+  var kfw = setzeDarlehen('kfw', 'kfw', 'ib-kfw-kapitalbedarf');
+  var d2  = setzeDarlehen('d2', 'd2', 'ib-d2-kredithoehe');
+  d.ekFrei = false;
+  w.ibEinsetzen(d);
+
+  /* 3. Eigenkapital rückwärts: Kaufpreis inkl. NK − Summe der Darlehen */
+  var kpnk = w.ibZahl ? w.ibZahl(doc.getElementById('ib-kaufpreis-inkl-nk')) : 0;
+  var summe = hd + kfw + d2, ek = Math.round(kpnk - summe);
+  d = w.ibSammeln();
+  d.felder['ib-eigenkapital'] = fvEuro(ek);
+  d.ekFrei = true;
+  w.ibEinsetzen(d);
+  if (w.ibBezeichnungNachziehen) w.ibBezeichnungNachziehen(false);
+  } finally { w.IB_ZAEHLDAUER = zaehl; }
+
+  /* 4. Kontrolle: Darlehen 1 im Tool = Hauptdarlehen laut Angebot? */
+  var hdTool = w.ibZahl ? w.ibZahl(doc.getElementById('ib-kredithoehe')) : hd;
+  var hinweise = [];
+  if (kfw > FV_KFW_MAX) hinweise.push('KfW-Darlehen über ' + fvEuro(FV_KFW_MAX) + '.');
+  if (ek < 0) hinweise.push('Eigenkapital negativ (' + fvEuro(ek) + '): Die Darlehen sind höher als Kaufpreis inkl. Nebenkosten.');
+  if (Math.abs(hdTool - hd) > 1) hinweise.push('Darlehen 1 im Tool (' + fvEuro(hdTool) + ') weicht vom Angebot (' + fvEuro(hd) + ') ab.');
+  fvMeldungen(hinweise, 'Erstellt: Kaufpreis inkl. NK ' + fvEuro(kpnk) + ' − Darlehen ' + fvEuro(summe) + ' = Eigenkapital ' + fvEuro(ek) + '. Bitte prüfen und speichern.');
+  melde(hinweise.length ? 'Berechnung erstellt – bitte Hinweise prüfen' : 'Berechnung erstellt – Eigenkapital ' + fvEuro(ek), !!hinweise.length);
+  if (hinweise.length) setTimeout(function(){ alert('Bitte prüfen:\n\n' + hinweise.join('\n')); }, 300);
 }
 
 /* =========================================================================

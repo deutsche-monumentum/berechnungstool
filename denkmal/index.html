@@ -2473,6 +2473,58 @@ var IB_MWST = 19;
   var reset = $('ib-btn-reset');
   if(reset) reset.addEventListener('click', function(){ window.ibEkFrei = false; if(IB_PROJEKTE.length){ ueberschussWahl(); window.ibBerechnen(); } });
 
+  /* ---- Vorbelegung über den Link (Kundenberechnung) -----------------
+     Beispiel: ?projekt=Denkmal Lofts Nürnberg&wohnung=69&zve=200000&verheiratet=ja&kirche=nein
+     projekt = Website-Name oder Projekt-ID; ohne Angabe bleibt die Vorgabe.
+     Der Kundenname steht bewusst nicht im Link. */
+  function jaNein(v){
+    if(v === null || v === undefined || v === '') return null;
+    v = String(v).trim().toLowerCase();
+    if(/^(ja|j|1|true|yes)$/.test(v)) return true;
+    if(/^(nein|n|0|false|no)$/.test(v)) return false;
+    return null;
+  }
+  function linkVorgaben(){
+    var q; try{ q = new URLSearchParams(window.location.search); }catch(e){ return; }
+    var pq = (q.get('projekt') || '').trim().toLowerCase();
+    if(pq){
+      for(var i = 0; i < IB_PROJEKTE.length; i++){
+        var p = IB_PROJEKTE[i];
+        if(String(p.id).toLowerCase() === pq || String(p.name).trim().toLowerCase() === pq){
+          selP.selectedIndex = i; einheitenLaden(); break;
+        }
+      }
+    }
+    var wq = (q.get('wohnung') || '').trim().toLowerCase();
+    var pa = projekt();
+    if(wq && pa){
+      /* genaue Nummer („069-B2-1“) oder nur die Wohnungsnummer („69“) */
+      var nr = function(t){ var m = String(t).match(/^\s*0*(\d+)/); return m ? m[1] : null; };
+      var treffer = -1, wnr = nr(wq);
+      for(var j = 0; j < pa.einheiten.length; j++){
+        if(String(pa.einheiten[j].nummer).trim().toLowerCase() === wq){ treffer = j; break; }
+      }
+      if(treffer < 0 && wnr && /^\s*0*\d+\s*$/.test(wq)){
+        for(var k = 0; k < pa.einheiten.length; k++){
+          if(nr(pa.einheiten[k].nummer) === wnr){ treffer = k; break; }
+        }
+      }
+      if(treffer >= 0){ selE.selectedIndex = treffer; einheitFelder(pa.einheiten[treffer]); }
+    }
+    var z = Number(String(q.get('zve') || '').replace(/[^0-9]/g, ''));
+    if(z > 0) setze('ib-zve-1-4', z, 'euro');
+    var vh = jaNein(q.get('verheiratet'));
+    if(vh !== null) setzeText('ib-splitting', vh ? 'Ja' : 'Nein');
+    var ki = jaNein(q.get('kirche'));
+    if(ki !== null){
+      var land = (projekt() || {}).land;
+      var lname = IB_LAND_KURZ[land] || IB_LAENDER[land] || '';
+      var satz = ki ? IB_STEUER.kist[land] : null;
+      setzeText('ib-kirchensteuer-label', satz ? 'KirchenSt. ' + lname : 'keine KirchenSt.');
+      setze('ib-kirchensteuer-satz', satz || 0, 'pct1');
+    }
+  }
+
   /* Bis die Daten da sind */
   fill(selP, ['wird geladen …']); fill(selE, ['—']);
 
@@ -2504,6 +2556,7 @@ var IB_MWST = 19;
     fill(selP, IB_PROJEKTE.map(function(p){ return p.name; }));
     selP.selectedIndex = 0;
     einheitenLaden();
+    linkVorgaben();                                 /* Werte aus dem Link (Kundenberechnung) */
     var dauer = IB_ZAEHLDAUER; IB_ZAEHLDAUER = 0;   /* erste Anzeige ohne Hochzählen */
     window.ibBerechnen();
     IB_ZAEHLDAUER = dauer;

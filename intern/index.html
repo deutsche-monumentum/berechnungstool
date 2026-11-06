@@ -181,6 +181,11 @@ button, input, select, textarea{ font: inherit; color: inherit; }
 
 .seiteninhalt{ padding: 22px 26px 60px; max-width: 1180px; }
 .tafel{ display:none; }
+/* ---- Erstberechnung ---- */
+.ew-tabelle select.wert{ width: 260px; text-align: left; }
+.ew-tabelle .zahl-sp{ text-align: right; font-family: var(--num); }
+.ew-tabelle tr.ew-ohne td{ color: var(--txt-leise); }
+.ew-tabelle input[type=radio]{ width: 16px; height: 16px; }
 /* ---- Finanzierungsvorschlag ---- */
 .fv-zeile{ grid-template-columns: minmax(0,1fr) 280px; }
 .fv-tabelle td{ vertical-align: middle; }
@@ -576,6 +581,7 @@ body.vorfuehren .re-zurueck-klein:hover{ opacity: 1; background: rgba(255,255,25
       <span class="nav-titel">Rechenvorgaben</span>
       <button data-ziel="grundeinstellungen">Grundeinstellungen</button>
       <button data-ziel="grenzwerte">Grenzwerte</button>
+      <button data-ziel="erstwohnung">Erstberechnung</button>
 
       <span class="nav-titel">Rechentools</span>
       <button data-ziel="berechnung" data-titel="Berechnung">Ausführlich (intern)</button>
@@ -633,6 +639,27 @@ body.vorfuehren .re-zurueck-klein:hover{ opacity: 1; background: rgba(255,255,25
 
         <div class="ku-abc" id="ku-abc"></div>
         <div id="ku-liste"></div>
+      </section>
+
+      <!-- ============== ERSTBERECHNUNG: Wohnung je Projekt ============== -->
+      <section class="tafel" id="t-erstwohnung">
+        <div class="hinweis">
+          Für jedes Projekt die Wohnung festlegen, mit der die Erstberechnung für neue Interessenten
+          gerechnet wird (100 % Finanzierung, Grundeinstellungen). „Standard“ gilt, wenn beim Interessenten
+          kein Projekt angegeben ist. Zur Auswahl stehen die Wohnungen mit Häkchen „Ausführlich“ in der Preisliste.
+          Änderungen oben rechts mit „Speichern“ übernehmen.
+        </div>
+        <div class="panel">
+          <div class="panel-kopf">Wohnung für die Erstberechnung <span class="rechts" id="ew-zaehler"></span></div>
+          <div class="panel-koerper">
+            <div class="tabellenhuelle">
+              <table class="ew-tabelle">
+                <thead><tr><th>Standard</th><th>Projekt</th><th>Art</th><th>Wohnung</th><th class="zahl-sp">Fläche</th><th class="zahl-sp">Kaufpreis</th></tr></thead>
+                <tbody id="ew-zeilen"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- ============== FINANZIERUNGSVORSCHLAG (Bankangebot nachbauen) ============== -->
@@ -1488,7 +1515,7 @@ function zeigeTafel(ziel){
   ({ projekte:zeichneProjekte, preisliste:zeichnePreisliste, import:zeichneImport,
      grundeinstellungen:zeichneGrund, grenzwerte:zeichneGrenz, zugaenge:zeichneZugaenge,
      protokoll:function(){ S.protokollSeite = 0; ladeProtokoll(false); },
-     kunden:zeichneKunden, finanzierung:zeichneFinanzierung, berechnung:zeigeBerechnung,
+     kunden:zeichneKunden, finanzierung:zeichneFinanzierung, erstwohnung:zeichneErstwohnung, berechnung:zeigeBerechnung,
      webdenkmal:function(){ zeigeWeb('denkmal'); }, webqng:function(){ zeigeWeb('qng'); } })[ziel]();
   merkeVerlauf(ziel);
 }
@@ -1516,7 +1543,8 @@ window.addEventListener('popstate', function(ev){
 
 $('speichern').addEventListener('click', async function(){
   var fn = { preisliste:speicherePreisliste, grundeinstellungen:speichereGrund,
-             grenzwerte:speichereGrenz, zugaenge:speichereZugaenge, berechnung:speichereBerechnung }[S.tafel];
+             grenzwerte:speichereGrenz, zugaenge:speichereZugaenge, berechnung:speichereBerechnung,
+             erstwohnung:speichereErstwohnung }[S.tafel];
   if (!fn) return;
   var k = this; k.disabled = true; k.classList.add('laedt');
   try {
@@ -3241,6 +3269,77 @@ async function speichereBerechnung(){
   return 1;
 }
 
+
+/* =========================================================================
+   ERSTBERECHNUNG – Wohnung je Projekt (einstellungen: erst_wohnung je Projekt,
+   erst_standard = Projekt-ID, das gilt, wenn kein Projekt angegeben ist)
+   ========================================================================= */
+var EW_ART = { denkmal: 'Denkmal', qng: 'Neubau QNG', bestand: 'Bestand' };
+function ewProjekte(){
+  return S.projekte.filter(function(p){ return p.aktiv !== false; });
+}
+function ewWohnungen(pid){
+  var srt = new Intl.Collator('de', { numeric: true, sensitivity: 'base' });
+  return S.einheiten.filter(function(e){ return e.projekt_id === pid && e.im_angebot !== false; })
+    .sort(function(a, b){ return srt.compare(a.nummer, b.nummer); });
+}
+function ewZeileWerte(tr){
+  var pid = tr.dataset.pid, nr = tr.querySelector('select').value;
+  var e = ewWohnungen(pid).filter(function(x){ return x.nummer === nr; })[0];
+  tr.querySelector('.ew-fl').textContent = e && e.wohnflaeche ? Number(e.wohnflaeche).toLocaleString('de-DE') + ' m²' : '–';
+  tr.querySelector('.ew-kp').textContent = e && e.kaufpreis ? Math.round(Number(e.kaufpreis)).toLocaleString('de-DE') + ' €' : '–';
+  tr.classList.toggle('ew-ohne', !nr);
+}
+function ewZaehlen(){
+  var z = document.querySelectorAll('#ew-zeilen select'), n = 0;
+  z.forEach(function(s){ if (s.value) n++; });
+  $('ew-zaehler').textContent = n + ' von ' + z.length + ' Projekten festgelegt';
+}
+function zeichneErstwohnung(){
+  var std = einstWert('erst_standard', null, 'alle');
+  var tb = $('ew-zeilen');
+  tb.innerHTML = ewProjekte().map(function(p){
+    var gew = einstWert('erst_wohnung', p.id, 'alle') || '';
+    var opts = '<option value="">– keine –</option>' + ewWohnungen(p.id).map(function(e){
+      return '<option value="' + esc(e.nummer) + '"' + (e.nummer === gew ? ' selected' : '') + '>' + esc(e.nummer) + '</option>';
+    }).join('');
+    if (gew && !ewWohnungen(p.id).some(function(e){ return e.nummer === gew; }))
+      opts += '<option value="' + esc(gew) + '" selected>' + esc(gew) + ' (nicht mehr im Angebot)</option>';
+    return '<tr data-pid="' + esc(p.id) + '">' +
+      '<td><input type="radio" name="ew-standard" value="' + esc(p.id) + '"' + (std === p.id ? ' checked' : '') + ' aria-label="Standard"></td>' +
+      '<td><b>' + esc(p.deckname) + '</b>' + (p.oeffentlich === false ? ' <small class="fv-klein">Entwurf</small>' : '') + '</td>' +
+      '<td>' + esc(EW_ART[p.art] || p.art || '') + '</td>' +
+      '<td><select class="wert" aria-label="Wohnung für ' + esc(p.deckname) + '">' + opts + '</select></td>' +
+      '<td class="zahl-sp ew-fl"></td><td class="zahl-sp ew-kp"></td></tr>';
+  }).join('') || '<tr><td colspan="6">Noch keine Projekte angelegt.</td></tr>';
+  tb.querySelectorAll('tr[data-pid]').forEach(function(tr){
+    ewZeileWerte(tr);
+    tr.querySelector('select').addEventListener('change', function(){ ewZeileWerte(tr); ewZaehlen(); });
+  });
+  ewZaehlen();
+}
+async function speichereErstwohnung(){
+  var zeilen = [], weg = [], n = 0;
+  document.querySelectorAll('#ew-zeilen tr[data-pid]').forEach(function(tr){
+    var pid = tr.dataset.pid, nr = tr.querySelector('select').value, alt = einstWert('erst_wohnung', pid, 'alle') || '';
+    if (nr === alt) return;
+    if (nr) zeilen.push({ schluessel: 'erst_wohnung', tool: 'alle', projekt_id: pid, wert: nr, bezeichnung: 'Wohnung Erstberechnung' });
+    else weg.push(pid);
+  });
+  var r = document.querySelector('#ew-zeilen input[name=ew-standard]:checked');
+  var std = r ? r.value : '', stdAlt = einstWert('erst_standard', null, 'alle') || '';
+  if (std && std !== stdAlt){
+    var tr = document.querySelector('#ew-zeilen tr[data-pid="' + std + '"]');
+    if (tr && !tr.querySelector('select').value) throw new Error('Für das Standard-Projekt bitte zuerst eine Wohnung wählen');
+    zeilen.push({ schluessel: 'erst_standard', tool: 'alle', projekt_id: null, wert: std, bezeichnung: 'Standard-Projekt Erstberechnung' });
+  }
+  if (zeilen.length){ await pruefe(await sb.from('einstellungen').upsert(zeilen, { onConflict: 'schluessel,tool,projekt_id' }).select()); n += zeilen.length; }
+  for (var i = 0; i < weg.length; i++){
+    await pruefe(await sb.from('einstellungen').delete().eq('schluessel', 'erst_wohnung').eq('tool', 'alle').eq('projekt_id', weg[i]));
+    n++;
+  }
+  return n;
+}
 
 /* =========================================================================
    FINANZIERUNGSVORSCHLAG – Bankangebot des Kunden im ausführlichen Tool nachbauen

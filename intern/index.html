@@ -809,7 +809,7 @@ body.vorfuehren .re-zurueck-klein:hover{ opacity: 1; background: rgba(255,255,25
                 <tr>
                   <th></th><th>Einheit</th><th>Fläche</th><th>Kaufpreis</th><th>Miete €/m²</th><th>Möbel/Küche</th><th>Stellplatz</th>
                   <th>Stellpl. Miete</th><th>Hausverw.</th><th>KfW-Darlehen</th><th>Tilgungszuschuss</th>
-                  <th>Boden</th><th>Gebäude</th><th>Sanierung</th><th title="Wohnung im ausführlichen Tool (intern) zur Auswahl anbieten">Ausführlich</th><th title="Wohnung im Rechner auf der Website anzeigen (höchstens 10)">Website</th>
+                  <th>Boden</th><th>Gebäude</th><th>Sanierung</th><th title="Wohnung im ausführlichen Tool (intern) zur Auswahl anbieten">Ausführlich</th><th title="Wohnung im Rechner auf der Website anzeigen (höchstens 10)">Website</th><th title="Basis-Wohnung für die automatische Erstberechnung (eine je Projekt)">Erstberechnung</th>
                 </tr>
                 <tr class="fuer-alle-zeile knopf-pflege" id="pl-fa-zeile"></tr>
               </thead>
@@ -1780,7 +1780,7 @@ function zeichnePreisliste(){
   fuelleFuerAlle();
   if (!p){
     $('pl-titel').textContent = 'Objektliste'; $('pl-stand').textContent = '';
-    tb.innerHTML = '<tr><td colspan="16" class="leer">Zuerst unter „Projekte“ ein Projekt anlegen.</td></tr>';
+    tb.innerHTML = '<tr><td colspan="17" class="leer">Zuerst unter „Projekte“ ein Projekt anlegen.</td></tr>';
     zeichneProjektfelder(null); return;
   }
   var eh = einheitenVon(p.id);
@@ -1793,7 +1793,7 @@ function zeichnePreisliste(){
   $('pl-alle').hidden = eh.length <= 25;
   $('pl-alle').textContent = S.alle ? 'Weniger anzeigen' : 'Alle ' + eh.length + ' Einheiten anzeigen';
   tb.innerHTML = zeigen.length ? zeigen.map(function(e){ return zeileHtml(e, p); }).join('')
-    : '<tr><td colspan="16" class="leer">Noch keine Einheiten. Über „Listen einspielen“ oder „Zeile hinzufügen“ ergänzen.</td></tr>';
+    : '<tr><td colspan="17" class="leer">Noch keine Einheiten. Über „Listen einspielen“ oder „Zeile hinzufügen“ ergänzen.</td></tr>';
   verdrahteZeilen(tb);
   zaehleWebsite();
   $('pl-alles-weg').hidden = !S.admin || !eh.length;
@@ -1825,7 +1825,9 @@ function zeileHtml(e, p){
     return '<td class="' + (s.art === 'text' ? 'z einheit' : 'z') + '" data-k="' + s.k + '"' + ed + '>' + zellText(zellwert(e, s, p), s) + '</td>';
   }).join('') +
   '<td class="angebot"><label title="Diese Wohnung im ausführlichen Tool (intern) zur Auswahl anbieten"><input type="checkbox" class="im-angebot"' + (an ? ' checked' : '') + (S.admin ? '' : ' disabled') + '></label></td>' +
-  '<td class="angebot website"><label title="Diese Wohnung im Rechner auf der Website anzeigen"><input type="checkbox" class="auf-website"' + (web ? ' checked' : '') + (S.admin ? '' : ' disabled') + '></label></td></tr>';
+  '<td class="angebot website"><label title="Diese Wohnung im Rechner auf der Website anzeigen"><input type="checkbox" class="auf-website"' + (web ? ' checked' : '') + (S.admin ? '' : ' disabled') + '></label></td>' +
+  '<td class="angebot erst"><label title="Basis-Wohnung für die Erstberechnung dieses Projekts"><input type="radio" name="erst-wohnung" class="erst-wohnung"' +
+    (e.nummer && e.nummer === einstWert('erst_wohnung', p && p.id, 'alle') ? ' checked' : '') + (S.admin ? '' : ' disabled') + '></label></td></tr>';
 }
 
 function verdrahteZeilen(tb){
@@ -1833,6 +1835,12 @@ function verdrahteZeilen(tb){
     tr.addEventListener('input', function(){ tr.classList.add('geaendert'); });
     var weg = tr.querySelector('.zeile-weg');
     if (weg) weg.addEventListener('click', function(){ zeileEntfernen(tr); });
+    var ecb = tr.querySelector('.erst-wohnung');
+    if (ecb) ecb.addEventListener('change', function(){
+      tr.classList.add('geaendert');
+      var nr = (tr.querySelector('td[data-k=nummer]').textContent || '').trim();
+      melde('Einheit ' + nr + ' wird Basis für die Erstberechnung · bitte speichern');
+    });
     var cb = tr.querySelector('.im-angebot'), wcb = tr.querySelector('.auf-website');
     var grau = function(){ tr.classList.toggle('raus', !(cb && cb.checked) && !(wcb && wcb.checked)); };
     if (cb) cb.addEventListener('change', function(){
@@ -1917,7 +1925,7 @@ function fuelleFuerAlle(){
   '<th class="fa-web"><button type="button" class="knopf knopf--leise" id="pl-aus-alle" title="Häkchen „Ausführlich“ bei allen Einheiten setzen">alle</button>' +
   '<button type="button" class="knopf knopf--leise" id="pl-aus-keine" title="Häkchen „Ausführlich“ bei allen Einheiten entfernen">keine</button></th>' +
   '<th class="fa-web"><button type="button" class="knopf knopf--leise" id="pl-web-alle" title="Häkchen „Website“ bei allen Einheiten setzen">alle</button>' +
-  '<button type="button" class="knopf knopf--leise" id="pl-web-keine" title="Häkchen „Website“ bei allen Einheiten entfernen">keine</button></th>';
+  '<button type="button" class="knopf knopf--leise" id="pl-web-keine" title="Häkchen „Website“ bei allen Einheiten entfernen">keine</button></th><th></th>';
   $('pl-aus-alle').addEventListener('click', function(){ hakenFuerAlle('im-angebot', 'Ausführlich', true); });
   $('pl-aus-keine').addEventListener('click', function(){ hakenFuerAlle('im-angebot', 'Ausführlich', false); });
   $('pl-web-alle').addEventListener('click', function(){ hakenFuerAlle('auf-website', 'Website', true); });
@@ -2018,6 +2026,12 @@ async function speicherePreisliste(){
   for (var w = 0; w < weg.length; w++) await pruefe(await sb.from('einheiten').delete().eq('id', weg[w]).select('id'));
   zaehler += weg.length;
   var zeilen = Array.prototype.slice.call($('pl-zeilen').querySelectorAll('tr.geaendert:not(.loeschen)'));
+  /* Erstberechnung: gewählte Wohnung muss im ausführlichen Tool stehen */
+  var erstTr = $('pl-zeilen').querySelector('tr:not(.loeschen) .erst-wohnung:checked');
+  erstTr = erstTr ? erstTr.closest('tr') : null;
+  var erstNr = erstTr ? (erstTr.querySelector('td[data-k=nummer]').textContent || '').trim() : null;
+  if (erstTr && !erstTr.querySelector('.im-angebot').checked)
+    throw new Error('Die Wohnung für die Erstberechnung (' + erstNr + ') braucht das Häkchen „Ausführlich“');
   var neu = [], alt = [];
   zeilen.forEach(function(tr){
     var id = tr.dataset.id;
@@ -2041,6 +2055,11 @@ async function speicherePreisliste(){
   }
   if (neu.length) await pruefe(await sb.from('einheiten').insert(neu).select());
   zaehler += alt.length + neu.length;
+  if (erstNr && erstNr !== einstWert('erst_wohnung', p.id, 'alle')){
+    await pruefe(await sb.from('einstellungen').upsert([{ schluessel: 'erst_wohnung', tool: 'alle', projekt_id: p.id, wert: erstNr,
+      bezeichnung: 'Wohnung Erstberechnung' }], { onConflict: 'schluessel,tool,projekt_id' }).select());
+    zaehler++;
+  }
 
   /* 2. Projektfelder */
   var wn = $('p-webname').value.trim() || null;

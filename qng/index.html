@@ -1467,6 +1467,33 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 
   .ib-doc, .ib-sheet{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* =========================================================================
+   FARBEN BILDSCHIRM (Farbsystem "Luftig") – gilt NUR in der Webansicht.
+   Druck/PDF behaelt die bisherigen Farben. Zum Zurueckdrehen diesen
+   Block loeschen.
+   ========================================================================= */
+@media screen{
+  .ib-sheets{
+    --ib-fill:   #eef3f7;   /* Himmelhauch – Zahlenfelder, Baender  */
+    --ib-balken: #5e4f7a;   /* Pflaume – Ueberschriftsbalken        */
+    --ib-txt:    #4a4859;   /* Tinte – Schrift                      */
+    --ib-txt-in: #4a4859;   /* Tinte – Zahlen                       */
+  }
+  .ib-doc,
+  .ib-sheet,
+  .ib-tbl .ib-t-lbl{ background-color: #fdfcfa; }   /* Wolke */
+  .ib-tbl tr.ib-band td.ib-t-lbl{ background-color: var(--ib-fill); }
+  .ib-title,
+  .ib-h,
+  .ib-subbar,
+  .ib-erg-h,
+  .ib-fazit-txt b,
+  .ib-tbl thead th,
+  .ib-tbl tr.ib-band td{ color: #2e2c3f; }          /* Mitternacht */
+  .ib-fazit-wert,
+  .ib-wahl-box--an .ib-wahl-txt b{ color: #4a4859; }
+}
 </style>
 </head>
 <body>

@@ -3490,7 +3490,7 @@ function ibRechneErgebnis(e, erg){
   function summe(f){ return J.reduce(function(s, x){ return s + x[f]; }, 0); }
   var r = {};
   r.ekAnfang     = e.eigenkapital;
-  r.ekMonatlich  = Math.max(0, summe('tilgung') + summe('sondertilgung') - summe('ueberschuss'));
+  r.ekMonatlich  = (!e.sondertilgung) ? J.reduce(function(s, x){ return s + Math.max(0, x.tilgung + x.sondertilgung - x.ueberschuss); }, 0) : Math.max(0, summe('tilgung') + summe('sondertilgung') - summe('ueberschuss'));   /* Tilgungsersatz: nur echte Zuzahlungsjahre, Ueberschuesse liegen im Depot (Korrektur 17.11.2026) */
   r.restschuld   = erg.jahre[n] ? erg.jahre[n].restAnfang : 0;
   r.mietueberhang = summe('mietueberhang');
   r.steuer       = summe('steuer');

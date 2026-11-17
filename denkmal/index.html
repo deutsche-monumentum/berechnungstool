@@ -1013,13 +1013,13 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 
 /* ---- Zusammenfassung: Netto-Rendite ---- */
 .ib-fazit{
-  margin-top: 16pt;
+  margin-top: 12pt;
   width: 522.2pt; max-width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16pt;
-  padding: 15pt 14pt 16pt;
+  padding: 11pt 14pt 12pt;
   /* gleiche Fuellung wie die Eingabefelder, bewusst ohne Rahmen */
   background: var(--ib-fill);
 }
@@ -2307,7 +2307,7 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
         <!-- ---- Tortendiagramm mit Beschriftung aussen ---- -->
         <div class="ib-diagramm">
           <div class="ib-piewrap">
-            <svg class="ib-pie" viewBox="-12 0 320 268" role="img"
+            <svg class="ib-pie" viewBox="-12 0 320 250" role="img"
                  aria-label="Ergebnis nach 12 Jahren: Restschuld 53 Prozent, Steuerersparnis 31 Prozent, Wertsteigerung 15 Prozent, Mietüberhang minus 5 Prozent, Eigenkapital anfänglich eingebracht 4 Prozent, KFW-Zuschuss 1 Prozent">
               <defs>
                 <linearGradient id="ib-g-rest" x1="0" y1="0" x2="0.35" y2="1">
@@ -2962,8 +2962,8 @@ window.ibKreis = function(){
      folgt dem Kreisrand. Ueberlappen sich Texte, ruecken sie auf ihrer Seite
      auseinander; nur wenn ein Text dabei deutlich wandert, zeigt eine feine
      gerade Linie, wohin er gehoert. Keine Knicklinien mehr.               */
-  var CX = 146, CY = 152, R = 76, RT = R + 8, ZEILE = 12, NS = 'http://www.w3.org/2000/svg';
-  var OBEN = 2, UNTEN = 266, LUECKE = 7;
+  var CX = 146, CY = 142, R = 76, RT = R + 8, ZEILE = 12, NS = 'http://www.w3.org/2000/svg';
+  var OBEN = 2, UNTEN = 248, LUECKE = 7;
 
   var gTeile  = document.getElementById('ib-pie-slices'),
       gTexte  = document.getElementById('ib-pie-texte'),

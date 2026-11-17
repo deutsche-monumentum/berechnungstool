@@ -1478,8 +1478,8 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
   --ib-buehne: #e3e2ea;   /* Opal – Flaeche hinter den Blaettern  */
   --ib-fill:   #e3e2ea;   /* Opal – Zahlenfelder, Baender, Werkzeugleiste */
   --ib-balken: #706d80;   /* Nebelgrau – Ueberschriftsbalken      */
-  --ib-txt:    #2e2c3f;   /* Mitternacht – Schrift                */
-  --ib-txt-in: #2e2c3f;   /* Mitternacht – Zahlen                 */
+  --ib-txt:    #1c1a28;   /* Mitternacht dunkel – Schrift                */
+  --ib-txt-in: #1c1a28;   /* Mitternacht dunkel – Zahlen                 */
   --ib-green:  #d3e2cf;   /* Salbei – Ergebnisfelder (gruen)      */
   --ib-blue:   #4a4859;   /* Tinte weich – Tabellen-/Summenlinien */
   --ib-blue-dk:#4a4859;   /* Tinte weich – Auswahlkreis, Info-i   */
@@ -1491,8 +1491,8 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 .ib-erg-h,
 .ib-fazit-txt b,
 .ib-tbl thead th,
-.ib-tbl tr.ib-band td{ color: #2e2c3f; }          /* Mitternacht */
-.ib-wahl-box--an .ib-wahl-txt b{ color: #2e2c3f; }
+.ib-tbl tr.ib-band td{ color: #1c1a28; }          /* Mitternacht */
+.ib-wahl-box--an .ib-wahl-txt b{ color: #1c1a28; }
 /* alle Zahlen in Mitternacht */
 .ib-f,
 .ib-sum .ib-f,
@@ -1500,15 +1500,15 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 .ib-tbl .ib-t-v,
 .ib-m-f,
 .ib-kpi-v,
-.ib-fazit-wert{ color: #2e2c3f; }
+.ib-fazit-wert{ color: #1c1a28; }
 #ib-gesamtflaeche,
-#ib-kirchensteuer-satz{ color: #2e2c3f !important; }   /* hatten feste Farbe im HTML */
+#ib-kirchensteuer-satz{ color: #1c1a28 !important; }   /* hatten feste Farbe im HTML */
 /* kleine Erlaeuterungstexte (bisher Dunkelgrau/Schwarz) ebenfalls Mitternacht */
 .ib-wahl-box--an .ib-wahl-txt small,
 .ib-resttl small,
 .ib-kpi-t small,
 .ib-fazit-txt span,
-.ib-f .ib-note-sm{ color: #2e2c3f !important; }
+.ib-f .ib-note-sm{ color: #1c1a28 !important; }
 /* Linien: kraeftige Linien Tinte weich, feine Rahmen Nebelgrau */
 .ib-out--dk,
 .ib-out--green,
@@ -1526,14 +1526,14 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
    ========================================================================= */
 .ib-doc,
 .ib-intern{
-  --ib-ui-dunkel: #2e2c3f;  /* Mitternacht – dunkle Fenster        */
+  --ib-ui-dunkel: #1c1a28;  /* Mitternacht dunkel – dunkle Fenster        */
   --ib-ui-hell:   #bfbdcb;  /* Wolkengrau – Nebentext auf dunkel    */
 }
-.ib-btn{ background: #fdfcfa; border-color: #4a4859; color: #2e2c3f; }
+.ib-btn{ background: #fdfcfa; border-color: #4a4859; color: #1c1a28; }
 .ib-btn--haupt{ background: var(--ib-balken); border-color: #4a4859; color: #fff; }
 @media (hover: hover) and (pointer: fine){
   .ib-btn:hover{ background: var(--ib-balken); border-color: var(--ib-balken); color: #fff; }
-  .ib-btn--haupt:hover{ background: #2e2c3f; border-color: #2e2c3f; color: #fff; }
+  .ib-btn--haupt:hover{ background: #1c1a28; border-color: #1c1a28; color: #fff; }
   .ib-tour-btn:hover{ background: #fdfcfa; }
   .ib-wahl-sel:hover{ color: #706d80; }
 }
@@ -1546,18 +1546,18 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
   0%, 100%{ box-shadow: 0 0 0 0 rgba(112,109,128,0); }
   50%     { box-shadow: 0 0 0 2.5pt rgba(112,109,128,.55); }
 }
-.ib-video-flaeche{ background: #2e2c3f; }
+.ib-video-flaeche{ background: #1c1a28; }
 .ib-video-platzhalter{ background: repeating-linear-gradient(135deg, #34324a 0 12px, #3a3850 12px 24px); }
 /* interner Bereich */
 .ib-wahl-sel,
-.ib-wahl-hinweis{ color: #2e2c3f; }
+.ib-wahl-hinweis{ color: #1c1a28; }
 .ib-dl-leer{ color: #bfbdcb; }
 .ib-d2-weg{ color: #706d80; }
 .ib-wz-name,
 .ib-wz-feld,
 .ib-intern-titel,
 .ib-objekt-titel,
-.ib-kunde-name{ color: #2e2c3f; }
+.ib-kunde-name{ color: #1c1a28; }
 .ib-wz-feld{ background: #fdfcfa; border-color: #4a4859; }
 .ib-wz-feld::placeholder{ color: #706d80; }
 .ib-wz-trenn{ background: #bfbdcb; }
@@ -2314,7 +2314,7 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
               <!-- Mittelpunkt 142/100, Radius 48 – Segmente im Uhrzeigersinn ab 12 Uhr -->
               <g id="ib-pie-linien" stroke="#706d80" stroke-width="0.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></g>
               <g id="ib-pie-slices" stroke="#FFFFFF" stroke-width="1.4" stroke-linejoin="round"></g>
-              <g id="ib-pie-texte" font-size="10.5" font-weight="700" fill="#2e2c3f"></g>
+              <g id="ib-pie-texte" font-size="10.5" font-weight="700" fill="#1c1a28"></g>
             </svg>
           </div>
         </div>

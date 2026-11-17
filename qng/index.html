@@ -1568,6 +1568,42 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 .ib-kunde-klein{ color: #4a4859; }
 .ib-kunde{ border-bottom-color: #e3e2ea; }
 
+/* =========================================================================
+   HELLE FENSTER: Hinweis-, Formel- und Videofenster hell statt dunkel
+   ========================================================================= */
+.ib-tour,
+.ib-tip,
+.ib-video{ background: #fdfcfa; color: #1c1a28; border: 1px solid #bfbdcb;
+           box-shadow: 0 8px 26px rgba(28,26,40,.22); }
+.ib-tour-nr,
+.ib-tour-zu,
+.ib-tip-f,
+.ib-video-dauer,
+.ib-video-tab,
+.ib-video-hinweis{ color: #706d80; }
+.ib-tour-b,
+.ib-tip-k,
+.ib-video-fuss{ color: #4a4859; }
+.ib-tour-zu:hover{ color: #1c1a28; }
+.ib-tour-punkte i{ background: #bfbdcb; }
+.ib-tour-punkte i.ib-an{ background: var(--ib-balken); }
+.ib-tour-btn{ background: var(--ib-balken); color: #fff; }
+@media (hover: hover) and (pointer: fine){ .ib-tour-btn:hover{ background: #1c1a28; color: #fff; } }
+.ib-tour-pfeil,
+.ib-tip-pfeil{ border-top-color: #fdfcfa; }
+.ib-tour--unten .ib-tour-pfeil,
+.ib-tip--unten .ib-tip-pfeil{ border-bottom-color: #fdfcfa; border-top-color: transparent; }
+.ib-video-kopf{ background: #e3e2ea; color: #1c1a28; }
+.ib-video-zu{ color: #4a4859; }
+.ib-video-zu:hover{ color: #1c1a28; }
+.ib-video-flaeche{ background: #e3e2ea; }
+.ib-video-platzhalter{ background: repeating-linear-gradient(135deg, #e3e2ea 0 12px, #eae9ef 12px 24px); }
+.ib-video-play{ background: var(--ib-balken); color: #fff; box-shadow: 0 4px 14px rgba(28,26,40,.25); }
+.ib-video-play:hover{ background: #1c1a28; }
+.ib-video-tab::before{ background: #bfbdcb; }
+.ib-video-tab.ib-an{ color: #1c1a28; }
+.ib-video-tab.ib-an::before{ background: var(--ib-balken); }
+
 /* Papierhintergrund Wolke – nur am Bildschirm */
 @media screen{
   .ib-doc,

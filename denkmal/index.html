@@ -1474,10 +1474,11 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
    Block loeschen.
    ========================================================================= */
 @media screen{
-  .ib-doc{
+  .ib-doc,
+  .ib-intern{
     --ib-buehne: #e3e2ea;   /* Opal – Flaeche hinter den Blaettern  */
     --ib-fill:   #eef3f7;   /* Himmelhauch – Zahlenfelder, Baender, Werkzeugleiste */
-    --ib-balken: #5e4f7a;   /* Pflaume – Ueberschriftsbalken        */
+    --ib-balken: #4a4859;   /* Tinte weich – Ueberschriftsbalken    */
     --ib-txt:    #4a4859;   /* Tinte – Schrift                      */
     --ib-txt-in: #4a4859;   /* Tinte – Zahlen                       */
   }
@@ -1494,6 +1495,8 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
   .ib-tbl tr.ib-band td{ color: #2e2c3f; }          /* Mitternacht */
   .ib-fazit-wert,
   .ib-wahl-box--an .ib-wahl-txt b{ color: #4a4859; }
+  /* Zwischenueberschriften der Tabelle (GUV Rechnung …) wie "Kapitalbedarf" */
+  .ib-tbl tr.ib-band td.ib-t-lbl{ font-weight: 700; }
 }
 </style>
 </head>

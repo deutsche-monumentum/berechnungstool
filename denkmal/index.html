@@ -1424,6 +1424,15 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 @page{ size: A4 portrait; margin: 0; }
 @page ib-quer{ size: A4 landscape; margin: 0; }
 
+/* Rechtliche Hinweise: eigene Seite nur im Druck / PDF (17.11.2026) */
+.ib-sheet--hinweis{ display: none; }
+.ib-hinweis{ width: 552pt; max-width: 100%; font-family: var(--ib-font); }
+.ib-hinweis .ib-hinweis-text{ padding: 16pt var(--ib-balken-einzug) 0; max-width: 505pt; font-family: var(--ib-font); }
+.ib-hinweis .ib-hinweis-text h3{ font-family: var(--ib-font); font-weight: 700; font-size: 11pt; line-height: 1.3; color: var(--ib-ui-dunkel); margin: 17pt 0 4pt; }
+.ib-hinweis .ib-hinweis-text h3:first-child{ margin-top: 2pt; }
+.ib-hinweis .ib-hinweis-text p{ font-size: 10pt; line-height: 1.55; color: #262626; margin: 0; }
+.ib-hinweis .ib-hinweis-text p.ib-hinweis-stand{ margin-top: 26pt; padding-top: 8pt; border-top: 0.75pt solid var(--ib-balken); font-size: 9pt; font-style: italic; color: #555; }
+
 @media print{
   .ib-werkzeuge, .ib-tour, .ib-tip, .ib-video, .ib-swipehint{ display: none !important; }
   .ib-felder-zeigen .ib-in, .ib-felder-zeigen .ib-sel{ animation: none; box-shadow: none; }
@@ -1446,6 +1455,7 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
   .ib-sheet--hoch{ width: 594pt;  height: 839pt; }
   .ib-sheet--quer{ width: 839pt;  height: 594pt; }
   .ib-sheet:last-child{ break-after: auto; page-break-after: auto; }
+  .ib-sheet--hinweis{ display: block !important; }
   .ib-sheet--quer{ page: ib-quer; }
 
   .ib-tblwrap{ overflow: visible !important; }
@@ -2216,6 +2226,42 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
   </div>
 </section>
 </div></div>
+
+<!-- ======================================================================
+     RECHTLICHE HINWEISE (nur im Druck / PDF)
+     ====================================================================== -->
+<div class="ib-sheet ib-sheet--hoch ib-sheet--hinweis" aria-hidden="true"><div class="ib-sheet-in">
+<section class="ib-page ib-hinweis">
+  <img class="ib-logo" alt="Deutsche Monumentum">
+  <div class="ib-title">Rechtliche Hinweise</div>
+  <div class="ib-bar">Rechtliche Hinweise zur Musterberechnung</div>
+  <div class="ib-hinweis-text">
+    <h3>Unverbindliche Beispielrechnung</h3>
+    <p>Diese Musterberechnung ist eine unverbindliche Beispielrechnung. Sie dient ausschließlich der Information und stellt keine Steuer-, Rechts- oder Anlageberatung dar.</p>
+    <h3>Grundlagen der Berechnung</h3>
+    <p>Die Berechnung beruht auf den eingegebenen Daten, den Angaben des Bauträgers sowie auf mathematischen Standardverfahren. Die Einkommensteuer wird nach dem Tarif des § 32a EStG für das Jahr 2026 ermittelt, einschließlich Solidaritätszuschlag und, soweit gewählt, Kirchensteuer. Abschreibungen werden nach den zum Zeitpunkt der Berechnung geltenden Vorschriften angesetzt.</p>
+    <h3>Annahmen und Vereinfachungen</h3>
+    <p>Miet- und Wertentwicklung, Zinsen nach Ablauf der Zinsbindung, die Rendite einer Kapitalanlage sowie künftige Steuergesetze sind Annahmen. Die tatsächliche Entwicklung kann davon abweichen. Die Berechnung ist vereinfacht. Persönliche Umstände wie weitere Einkünfte, Freibeträge oder Verlustvorträge sind nicht berücksichtigt.</p>
+    <h3>Keine Steuerberatung</h3>
+    <p>Die Deutsche Monumentum erbringt keine Steuerberatung. Bitte lassen Sie die steuerlichen Auswirkungen vor Ihrer Entscheidung von Ihrem Steuerberater prüfen.</p>
+    <h3>Haftung</h3>
+    <p>Die Berechnung wurde mit Sorgfalt erstellt. Eine Gewähr für Richtigkeit, Vollständigkeit und Aktualität wird nicht übernommen. Eine Haftung für Entscheidungen, die auf Grundlage dieser Berechnung getroffen werden, ist ausgeschlossen, soweit dies gesetzlich zulässig ist. Maßgeblich sind allein der notarielle Kaufvertrag, die Darlehensverträge und die Bescheide des Finanzamts.</p>
+    <p class="ib-hinweis-stand">Stand der Berechnung: <span class="ib-hinweis-datum"></span></p>
+  </div>
+</section>
+</div></div>
+<script>
+(function(){
+  var vorlage = document.querySelector('.ib-logo[src]');
+  document.querySelectorAll('.ib-sheet--hinweis .ib-logo').forEach(function(i){ if(vorlage) i.src = vorlage.src; });
+  function datum(){
+    var t = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    document.querySelectorAll('.ib-hinweis-datum').forEach(function(e){ e.textContent = t; });
+  }
+  datum();
+  window.addEventListener('beforeprint', datum);
+})();
+</script>
 
 </div><!-- /ib-sheets -->
 

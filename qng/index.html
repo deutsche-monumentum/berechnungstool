@@ -2493,6 +2493,11 @@ var IB_MWST = 19;
     else kNeu = kAkt;                                                     /* von Hand gewähltes Bundesland bleibt */
     waehle('ib-kirchensteuer-label', kNeu);
     kistLetzt = kNeu;
+    if(kSelQ){                                   /* „Zurücksetzen“ führt zur Grundeinstellung zurück */
+      var kStd = einst('kirchensteuer') === 'ja' && lname ? 'KiSt. ' + lname : 'keine KirchenSt.';
+      for(var ks = 0; ks < kSelQ.options.length; ks++)
+        if(kSelQ.options[ks].textContent.trim() === kStd){ kSelQ.dataset.start = kSelQ.options[ks].value; break; }
+    }
     var hon = zahlOder(einst('honorar', p.id));
     setze('ib-beratungshonorar-satz', hon === null ? 0 : Math.round(hon * (100 + IB_MWST)) / 100, 'pct2');   /* inkl. MwSt */
     var w = zahlOder(einst('wertentwicklung', p.id)); if(w !== null) setze('ib-wertsteigerung', w, 'pct1');
@@ -2549,7 +2554,7 @@ var IB_MWST = 19;
     if(p) einheitFelder(p.einheiten[selE.selectedIndex]);
   });
   var reset = $('ib-btn-reset');
-  if(reset) reset.addEventListener('click', function(){ window.ibEkFrei = false; if(IB_PROJEKTE.length){ ueberschussWahl(); window.ibBerechnen(); } });
+  if(reset) reset.addEventListener('click', function(){ window.ibEkFrei = false; kistLetzt = null; if(IB_PROJEKTE.length){ ueberschussWahl(); window.ibBerechnen(); } });
 
   /* ---- Vorbelegung über den Link (Kundenberechnung) -----------------
      Beispiel: ?projekt=Denkmal Lofts Nürnberg&wohnung=69&zve=200000&verheiratet=ja&kirche=nein

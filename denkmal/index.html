@@ -2452,12 +2452,17 @@ var IB_MWST = 19;
     var lname = IB_LAND_KURZ[land] || IB_LAENDER[land] || '';
     setzeText('ib-grest-label', 'GrESt ' + lname);
     if(grest !== undefined) setze('ib-grest-satz', grest, 'pct1');
-    var kLab = $('ib-kirchensteuer-label');
-    var kistAn = kistLetzt === null ? einst('kirchensteuer') === 'ja' : !/^keine/.test(kLab ? kLab.textContent : 'keine');
-    kistLetzt = kistAn;
-    var kist = kistAn ? IB_STEUER.kist[land] : null;
-    setzeText('ib-kirchensteuer-label', kist ? 'KirchenSt. ' + lname : 'keine KirchenSt.');
-    setze('ib-kirchensteuer-satz', kist || 0, 'pct1');
+    /* Kirchensteuer richtet sich nach dem Wohnort des Kunden: nur beim ersten Laden laut Grundeinstellung
+       (Bundesland des Projekts), danach bleibt sie beim Projektwechsel unverändert (17.11.2026) */
+    if(kistLetzt === null){
+      var kist = einst('kirchensteuer') === 'ja' ? IB_STEUER.kist[land] : null;
+      setzeText('ib-kirchensteuer-label', kist ? 'KirchenSt. ' + lname : 'keine KirchenSt.');
+      setze('ib-kirchensteuer-satz', kist || 0, 'pct1');
+      kistLetzt = true;
+    }
+    /* Notar- und Bauzeitzinssatz gehören zum Objekt: bei jedem Projektwechsel laut Einstellung (17.11.2026) */
+    var nSatz = zahlOder(einst('notar', p.id));     if(nSatz !== null) setze('ib-notarkosten-satz', nSatz, 'pct1');
+    var bSatz = zahlOder(einst('bauzinsen', p.id)); if(bSatz !== null) setze('ib-bauzeitzinsen-satz', bSatz, 'pct1');
     var hon = zahlOder(einst('honorar', p.id));
     setze('ib-beratungshonorar-satz', hon === null ? 0 : Math.round(hon * (100 + IB_MWST)) / 100, 'pct2');   /* inkl. MwSt */
     var w = zahlOder(einst('wertentwicklung', p.id)); if(w !== null) setze('ib-wertsteigerung', w, 'pct1');
@@ -2524,7 +2529,7 @@ var IB_MWST = 19;
     if(p) einheitFelder(p.einheiten[selE.selectedIndex]);
   });
   var reset = $('ib-btn-reset');
-  if(reset) reset.addEventListener('click', function(){ window.ibEkFrei = false; if(IB_PROJEKTE.length){ ueberschussWahl(); window.ibBerechnen(); } });
+  if(reset) reset.addEventListener('click', function(){ window.ibEkFrei = false; kistLetzt = null; if(IB_PROJEKTE.length){ var pr = projekt(); if(pr) projektFelder(pr); ueberschussWahl(); window.ibBerechnen(); } });
 
   /* ---- Vorbelegung über den Link (Kundenberechnung) -----------------
      Beispiel: ?projekt=Denkmal Lofts Nürnberg&wohnung=69&zve=200000&verheiratet=ja&kirche=nein

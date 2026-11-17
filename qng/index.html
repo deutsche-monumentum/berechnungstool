@@ -1469,36 +1469,37 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 }
 
 /* =========================================================================
-   FARBEN BILDSCHIRM (Farbsystem "Luftig") – gilt NUR in der Webansicht.
-   Druck/PDF behaelt die bisherigen Farben. Zum Zurueckdrehen diesen
-   Block loeschen.
+   FARBEN (Farbsystem "Luftig") – gilt fuer Webansicht UND Druck/PDF.
+   Nur der Papierhintergrund (Wolke) gilt allein am Bildschirm; gedruckt
+   wird auf weissem Papier. Zum Zurueckdrehen diesen Block loeschen.
    ========================================================================= */
+.ib-doc,
+.ib-intern{
+  --ib-buehne: #e3e2ea;   /* Opal – Flaeche hinter den Blaettern  */
+  --ib-fill:   #eef3f7;   /* Himmelhauch – Zahlenfelder, Baender, Werkzeugleiste */
+  --ib-balken: #4a4859;   /* Tinte weich – Ueberschriftsbalken    */
+  --ib-txt:    #4a4859;   /* Tinte – Schrift                      */
+  --ib-txt-in: #4a4859;   /* Tinte – Zahlen                       */
+}
+.ib-title,
+.ib-h,
+.ib-subbar,
+.ib-erg-h,
+.ib-fazit-txt b,
+.ib-tbl thead th,
+.ib-tbl tr.ib-band td{ color: #2e2c3f; }          /* Mitternacht */
+.ib-fazit-wert,
+.ib-wahl-box--an .ib-wahl-txt b{ color: #4a4859; }
+/* Zwischenueberschriften der Tabelle (GUV Rechnung …) wie "Kapitalbedarf" */
+.ib-tbl tr.ib-band td.ib-t-lbl{ font-weight: 700; }
+
+/* Papierhintergrund Wolke – nur am Bildschirm */
 @media screen{
-  .ib-doc,
-  .ib-intern{
-    --ib-buehne: #e3e2ea;   /* Opal – Flaeche hinter den Blaettern  */
-    --ib-fill:   #eef3f7;   /* Himmelhauch – Zahlenfelder, Baender, Werkzeugleiste */
-    --ib-balken: #4a4859;   /* Tinte weich – Ueberschriftsbalken    */
-    --ib-txt:    #4a4859;   /* Tinte – Schrift                      */
-    --ib-txt-in: #4a4859;   /* Tinte – Zahlen                       */
-  }
   .ib-doc,
   .ib-sheet,
   .ib-tbl .ib-t-lbl{ background-color: #fdfcfa; }   /* Wolke */
   .ib-tbl tr.ib-band td.ib-t-lbl{ background-color: var(--ib-fill); }
-  .ib-title,
-  .ib-h,
-  .ib-subbar,
-  .ib-erg-h,
-  .ib-fazit-txt b,
-  .ib-tbl thead th,
-  .ib-tbl tr.ib-band td{ color: #2e2c3f; }          /* Mitternacht */
-  .ib-fazit-wert,
-  .ib-wahl-box--an .ib-wahl-txt b{ color: #4a4859; }
-  /* Zwischenueberschriften der Tabelle (GUV Rechnung …) wie "Kapitalbedarf" */
-  .ib-tbl tr.ib-band td.ib-t-lbl{ font-weight: 700; }
-}
-</style>
+}</style>
 </head>
 <body>
 

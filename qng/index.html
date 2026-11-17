@@ -1026,8 +1026,8 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 .ib-fazit-txt b{
   display: block;
   font-weight: 700;
-  font-size: 11.5pt;
-  line-height: 14.2pt;
+  font-size: 14pt;
+  line-height: 17pt;
 }
 .ib-fazit-txt span{
   display: block;
@@ -1037,7 +1037,7 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
   padding-top: 1.5pt;
 }
 .ib-fazit-wert{
-  font-size: 16.5pt;
+  font-size: 21pt;
   font-weight: 700;
   color: #000;
   white-space: nowrap;
@@ -1230,9 +1230,9 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
   .ib-kpi-v{ height: 23px; line-height: 22px; }
   .ib-fazit{ width: 100%; margin-top: 36px; padding: 15px 14px 16px; gap: 12px;
             flex-direction: column; align-items: flex-start; }
-  .ib-fazit-txt b{ font-size: 15px; line-height: 1.3; }
+  .ib-fazit-txt b{ font-size: 17px; line-height: 1.3; }
   .ib-fazit-txt span{ font-size: 12.5px; line-height: 1.35; }
-  .ib-fazit-wert{ font-size: 21px; align-self: flex-end; }
+  .ib-fazit-wert{ font-size: 25px; align-self: flex-end; }
 
   .ib-formula{ font-size: 12.5px; line-height: 1.4; padding: 16px 0 0 2px; }
   .ib-formula .ib-fn{ font-size: 11.5px; line-height: 1.35; }
@@ -1409,9 +1409,9 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
   .ib-kpi-v{ height: 23px; line-height: 22px; }
   .ib-fazit{ width: 100%; margin-top: 36px; padding: 15px 14px 16px; gap: 12px;
             flex-direction: column; align-items: flex-start; }
-  .ib-fazit-txt b{ font-size: 15px; line-height: 1.3; }
+  .ib-fazit-txt b{ font-size: 17px; line-height: 1.3; }
   .ib-fazit-txt span{ font-size: 12.5px; line-height: 1.35; }
-  .ib-fazit-wert{ font-size: 21px; align-self: flex-end; }
+  .ib-fazit-wert{ font-size: 25px; align-self: flex-end; }
 
   .ib-formula{ font-size: 12.5px; line-height: 1.4; padding: 16px 0 0 2px; }
   .ib-formula .ib-fn{ font-size: 11.5px; line-height: 1.35; }
@@ -2937,7 +2937,7 @@ window.ibKreis = function(){
      auseinander; nur wenn ein Text dabei deutlich wandert, zeigt eine feine
      gerade Linie, wohin er gehoert. Keine Knicklinien mehr.               */
   var CX = 146, CY = 110, R = 76, RT = R + 8, ZEILE = 12, NS = 'http://www.w3.org/2000/svg';
-  var OBEN = 2, UNTEN = 216, LUECKE = 3;
+  var OBEN = 2, UNTEN = 216, LUECKE = 7;
 
   var gTeile  = document.getElementById('ib-pie-slices'),
       gTexte  = document.getElementById('ib-pie-texte'),
@@ -2971,8 +2971,10 @@ window.ibKreis = function(){
       gTeile.appendChild(pfad);
     }
     var P = punkt(mitte, RT);
+    /* Restschuld grundsaetzlich etwas tiefer, damit sie Luft zu den Texten darueber hat */
+    var schub = d.zeilen.indexOf('Restschuld') >= 0 ? 36 : 0;
     marken.push({ d: d, mitte: mitte, seite: (mitte % 360) < 180 ? 'rechts' : 'links',
-                  h: d.zeilen.length * ZEILE, py: P[1], y: P[1] });
+                  h: d.zeilen.length * ZEILE, py: P[1], y: P[1] + schub });
     a0 = a1;
   });
 

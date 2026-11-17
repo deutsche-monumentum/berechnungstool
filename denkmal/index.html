@@ -2446,12 +2446,16 @@ var IB_MWST = 19;
   window.ibUeberschussVorgabe = ueberschussWahl;   /* auch für „Zurücksetzen“ */
 
   /* Projektwerte – bei jedem Projektwechsel */
+  var kistLetzt = null;   /* Kirchensteuer: erstes Laden laut Grundeinstellung, danach bleibt die Wahl stehen (17.11.2026) */
   function projektFelder(p){
     var land = p.land, grest = IB_STEUER.grest[land];
     var lname = IB_LAND_KURZ[land] || IB_LAENDER[land] || '';
     setzeText('ib-grest-label', 'GrESt ' + lname);
     if(grest !== undefined) setze('ib-grest-satz', grest, 'pct1');
-    var kist = einst('kirchensteuer') === 'ja' ? IB_STEUER.kist[land] : null;
+    var kLab = $('ib-kirchensteuer-label');
+    var kistAn = kistLetzt === null ? einst('kirchensteuer') === 'ja' : !/^keine/.test(kLab ? kLab.textContent : 'keine');
+    kistLetzt = kistAn;
+    var kist = kistAn ? IB_STEUER.kist[land] : null;
     setzeText('ib-kirchensteuer-label', kist ? 'KirchenSt. ' + lname : 'keine KirchenSt.');
     setze('ib-kirchensteuer-satz', kist || 0, 'pct1');
     var hon = zahlOder(einst('honorar', p.id));
@@ -2487,10 +2491,10 @@ var IB_MWST = 19;
     if(alt !== null)   setze('ib-altsubstanz-satz', alt, 'pct1');
     setze('ib-kfw-kapitalbedarf',    zahlOder(w.kfw_betrag), 'euro');
     setze('ib-kfw-tilgungszuschuss', zahlOder(w.kfw_zuschuss), 'euro');
-    /* Eigenkapital rechnet sich bei jeder Berechnung automatisch (siehe ibBerechnen);
-       neue Wohnung = wieder automatisch, Art laut Grundeinstellung */
+    /* Eigenkapital rechnet sich bei jeder Berechnung automatisch (siehe ibBerechnen), Art laut
+       Grundeinstellung. Ein von Hand eingetragener Betrag bleibt beim Wechsel von Projekt oder
+       Wohnung stehen, bis „Zurücksetzen“ (17.11.2026). */
     window.ibEkMitBauzins = einst('eigenkapital') !== 'nk';
-    window.ibEkFrei = false;
   }
 
   /* ---- Auswahlfelder ------------------------------------------------- */

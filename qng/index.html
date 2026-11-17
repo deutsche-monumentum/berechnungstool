@@ -2481,10 +2481,18 @@ var IB_MWST = 19;
     }
     sel.dataset.start = sel.value;               /* „Zurücksetzen“ führt hierher zurück */
   }
+  var kistLetzt = null;   /* Kirchensteuer: erstes Laden laut Grundeinstellung, danach bleibt die Wahl stehen (17.11.2026) */
   function projektFelder(p){
     var lname = IB_LAENDER[p.land] || '';
     if(lname) waehle('ib-grest-label', 'GrESt ' + lname);
-    waehle('ib-kirchensteuer-label', einst('kirchensteuer') === 'ja' && lname ? 'KiSt. ' + lname : 'keine KirchenSt.');
+    var kSelQ = $('ib-kirchensteuer-label'), kOpt = kSelQ && kSelQ.selectedOptions ? kSelQ.selectedOptions[0] : null;
+    var kAkt = kOpt ? kOpt.textContent.trim() : '', kNeu;
+    if(kistLetzt === null) kNeu = einst('kirchensteuer') === 'ja' && lname ? 'KiSt. ' + lname : 'keine KirchenSt.';
+    else if(/^keine/.test(kAkt)) kNeu = 'keine KirchenSt.';
+    else if(kAkt === kistLetzt) kNeu = lname ? 'KiSt. ' + lname : kAkt;   /* folgte dem Projekt: neues Bundesland */
+    else kNeu = kAkt;                                                     /* von Hand gewähltes Bundesland bleibt */
+    waehle('ib-kirchensteuer-label', kNeu);
+    kistLetzt = kNeu;
     var hon = zahlOder(einst('honorar', p.id));
     setze('ib-beratungshonorar-satz', hon === null ? 0 : Math.round(hon * (100 + IB_MWST)) / 100, 'pct2');   /* inkl. MwSt */
     var w = zahlOder(einst('wertentwicklung', p.id)); if(w !== null) setze('ib-wertsteigerung', w, 'pct1');
@@ -2508,10 +2516,10 @@ var IB_MWST = 19;
     if(boden === null && neu !== null) boden = 100 - neu;
     if(boden !== null) setze('ib-bodenanteil-satz', boden, 'pct1');
     setze('ib-kfw-kapitalbedarf',    zahlOder(w.kfw_betrag), 'euro');
-    /* Eigenkapital rechnet sich bei jeder Berechnung automatisch (siehe ibBerechnen);
-       neue Wohnung = wieder automatisch, Art laut Grundeinstellung */
+    /* Eigenkapital rechnet sich bei jeder Berechnung automatisch (siehe ibBerechnen), Art laut
+       Grundeinstellung. Ein von Hand eingetragener Betrag bleibt beim Wechsel von Projekt oder
+       Wohnung stehen, bis „Zurücksetzen“ (17.11.2026). */
     window.ibEkMitBauzins = einst('eigenkapital') !== 'nk';
-    window.ibEkFrei = false;
   }
 
   /* ---- Auswahlfelder ------------------------------------------------- */

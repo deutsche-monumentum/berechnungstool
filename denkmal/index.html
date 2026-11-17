@@ -3046,6 +3046,7 @@ window.ibKreis = function(){
   marken.forEach(function(x){
     var dy = Math.max(0, Math.abs(x.y - CY) - x.h / 2);
     var dx = dy < RT ? Math.sqrt(RT * RT - dy * dy) : 0;
+    dx = Math.max(dx, 34);   /* oben/unten Abstand zur Mitte, damit linke und rechte Texte nicht zusammenruecken */
     x.x = x.seite === 'rechts' ? CX + dx : CX - dx;
 
     var n = x.d.zeilen.length, start = x.y - (n - 1) * ZEILE / 2 + 3.4, breite = 0;

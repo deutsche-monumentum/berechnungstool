@@ -2330,7 +2330,7 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
         <!-- ---- Tortendiagramm mit Beschriftung aussen ---- -->
         <div class="ib-diagramm">
           <div class="ib-piewrap">
-            <svg class="ib-pie" viewBox="-12 0 320 218" role="img"
+            <svg class="ib-pie" viewBox="-12 0 320 242" role="img"
                  aria-label="Ergebnis nach 10 Jahren: Restschuld 55 Prozent, Steuerersparnis 17 Prozent, Wertsteigerung 13 Prozent, Eigenkapital anfänglich eingebracht 6 Prozent, Eigenkapital monatlich eingebracht 5 Prozent, Mietüberhang 4 Prozent">
               <defs>
                 <linearGradient id="ib-g-rest" x1="0" y1="0" x2="0.35" y2="1">
@@ -2977,8 +2977,8 @@ window.ibKreis = function(){
      folgt dem Kreisrand. Ueberlappen sich Texte, ruecken sie auf ihrer Seite
      auseinander; nur wenn ein Text dabei deutlich wandert, zeigt eine feine
      gerade Linie, wohin er gehoert. Keine Knicklinien mehr.               */
-  var CX = 146, CY = 110, R = 76, RT = R + 8, ZEILE = 12, NS = 'http://www.w3.org/2000/svg';
-  var OBEN = 2, UNTEN = 216, LUECKE = 7;
+  var CX = 146, CY = 124, R = 76, RT = R + 8, ZEILE = 12, NS = 'http://www.w3.org/2000/svg';
+  var OBEN = 2, UNTEN = 240, LUECKE = 7;
 
   var gTeile  = document.getElementById('ib-pie-slices'),
       gTexte  = document.getElementById('ib-pie-texte'),
@@ -3015,7 +3015,7 @@ window.ibKreis = function(){
     /* Restschuld grundsaetzlich etwas tiefer, damit sie Luft zu den Texten darueber hat */
     var schub = d.zeilen.indexOf('Restschuld') >= 0 ? 36 : 0;
     marken.push({ d: d, mitte: mitte, seite: (mitte % 360) < 180 ? 'rechts' : 'links',
-                  h: d.zeilen.length * ZEILE, py: P[1], y: P[1] + schub });
+                  h: d.zeilen.length * ZEILE, py: P[1], y: P[1] + schub, y0: P[1] + schub });
     a0 = a1;
   });
 
@@ -3027,6 +3027,17 @@ window.ibKreis = function(){
     var oben = UNTEN;
     for(var k = m.length - 1; k >= 0; k--){
       var x = m[k]; x.y = Math.min(x.y, oben - x.h / 2); oben = x.y - x.h / 2 - LUECKE;
+    }
+    /* Wird es auf einer Seite eng (Texte mussten ausweichen), die Texte
+       dieser Seite gleichmaessig ueber die ganze Hoehe verteilen. */
+    var eng = m.some(function(x){ return Math.abs(x.y - (x.py + (x.y0 - x.py))) > 6; });
+    if(m.length >= 3 && eng){
+      var summeH = m.reduce(function(a, x){ return a + x.h; }, 0);
+      var luft = (UNTEN - OBEN - summeH) / (m.length - 1);
+      if(luft >= LUECKE){
+        var y = OBEN;
+        m.forEach(function(x){ x.y = y + x.h / 2; y += x.h + luft; });
+      }
     }
   });
 

@@ -3427,9 +3427,9 @@ function ibRechneJahre(p){
 function ibRechneMonat(e, ein, erg, jahr, monat){
   var j = erg.jahre[jahr - 1] || {};
   var r = {};
-  /* wie Vorlage: (Kaltmiete + Stellplatzmiete - Hausverwaltung) * (1+Steigerung)^Jahr */
+  /* wie Vorlage: (Kaltmiete + Stellplatzmiete - Hausverwaltung) * (1+Steigerung)^(Jahr-1), wie Jahrestabelle (Korrektur 17.11.2026) */
   r.miete = (ein.kaltmieteMonat + e.stellplatzMiete - e.hausverwaltung)
-          * Math.pow(1 + e.mietsteigerung / 100, jahr);
+          * Math.pow(1 + e.mietsteigerung / 100, jahr - 1);
   var zinsen = 0, tilgung = 0, saldoVor = 0;
   erg.plan.forEach(function(liste){
     for(var k = 1; k < liste.length; k++){

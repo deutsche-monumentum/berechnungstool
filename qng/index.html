@@ -1520,6 +1520,10 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 .ib-resband{ border-top-color: #706d80; border-bottom-color: #706d80; }
 /* Zwischenueberschriften der Tabelle (GUV Rechnung …) wie "Kapitalbedarf" */
 .ib-tbl tr.ib-band td.ib-t-lbl{ font-weight: 700; }
+/* Bandzeilen der Tabelle (GUV Rechnung, Steuern …) wie die Balken: Malve, weisse Schrift, gleicher Einzug */
+.ib-tbl tr.ib-band td,
+.ib-tbl tr.ib-band td.ib-t-lbl{ background: var(--ib-balken); color: var(--ib-balken-txt); }
+.ib-tbl tr.ib-band td.ib-t-lbl{ padding-left: var(--ib-balken-einzug); }
 
 /* =========================================================================
    FARBEN BEDIENOBERFLAECHE (Farbsystem "Luftig"): Werkzeugleiste, Knoepfe,
@@ -1610,7 +1614,7 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
   .ib-doc,
   .ib-sheet,
   .ib-tbl .ib-t-lbl{ background-color: #fdfcfa; }   /* Wolke */
-  .ib-tbl tr.ib-band td.ib-t-lbl{ background-color: var(--ib-fill); }
+  .ib-tbl tr.ib-band td.ib-t-lbl{ background-color: var(--ib-balken); }
 }</style>
 </head>
 <body>

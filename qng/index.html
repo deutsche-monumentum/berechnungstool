@@ -3310,7 +3310,7 @@ function ibRechneEingaben(e){
                     * e.bauzinsSatz / 100 * IB_REGELN.bauzinsNachSteuern;   /* B29 */
   r.kaufpreisNK     = r.notar + r.grest + r.beratung + e.stellplatz + e.kaufpreis
                     + e.moebel + r.bauzinsen;                      /* B31 */
-  var afaBasis      = e.kaufpreis + r.notar + r.grest + e.stellplatz;
+  var afaBasis      = e.kaufpreis + r.notar + r.grest + r.beratung + e.stellplatz;   /* inkl. Beratungshonorar (17.11.2026) */
   r.bodenSatz       = e.bodenSatz;
   r.neubauSatz      = 100 - e.bodenSatz;                           /* G17 = 1 - G15 */
   r.boden           = afaBasis * e.bodenSatz / 100;                /* F15 */

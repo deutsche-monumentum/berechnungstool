@@ -3279,7 +3279,7 @@ function ibSoli(est, splitting){ return ibSoliSatz(est, splitting) / 100 * est; 
 /* ---- Blatt "Eingaben" ---------------------------------------------------- */
 function ibRechneEingaben(e){
   var basis   = e.kaufpreis + e.stellplatz;
-  var faktorNK = 1 + (e.notarSatz + e.grestSatz) / 100;
+  var faktorNK = 1 + (e.notarSatz + e.grestSatz + e.beratungSatz) / 100;   /* Beratungshonorar wie Notar/GrESt in die AfA (17.11.2026) */
   var r = {};
   r.kaltmieteMonat  = e.mieteQm * e.flaeche;                       /* F4  */
   r.notar           = basis * e.notarSatz / 100;                   /* B23 */
@@ -3293,7 +3293,7 @@ function ibRechneEingaben(e){
   r.sanSatz         = 100 - e.bodenSatz - e.altSatz;               /* G19 */
   r.boden           = basis * faktorNK * e.bodenSatz / 100;        /* F15 */
   r.altsubstanz     = basis * faktorNK * e.altSatz / 100;          /* F17 */
-  r.sanierung       = (e.kaufpreis + r.notar + r.grest) * r.sanSatz / 100; /* F19 */
+  r.sanierung       = (e.kaufpreis + r.notar + r.grest + r.beratung) * r.sanSatz / 100; /* F19 */
   r.afaAltSatz      = e.vor1925 ? 2.5 : 2.0;                       /* G21 */
   r.fremdkapital    = r.kaufpreisNK - e.eigenkapital;              /* B55 */
   r.kredithoehe     = (r.fremdkapital - e.kfwKapital) * (1 + e.disagio / 100); /* B61 */
@@ -3642,7 +3642,7 @@ window.ibZahl = function(el){
       'Jahr 1–8:\n' + F.ganz(san) + ' € × 9 % = ' + F.ganz(afa1) + ' € pro Jahr\n\nJahr 9–12:\n' +
       F.ganz(san) + ' € × 7 % = ' + F.ganz(afa2) + ' € pro Jahr',
       'Bemessungsgrundlage ist der Sanierungsanteil von ' + F.prozent(ein.sanSatz).replace(' ', ' ') +
-      ' aus Kaufpreis + Notarkosten + Grunderwerbsteuer (' + F.ganz(e.kaufpreis + ein.notar + ein.grest) +
+      ' aus Kaufpreis + Notarkosten + Grunderwerbsteuer' + (ein.beratung ? ' + Beratungshonorar' : '') + ' (' + F.ganz(e.kaufpreis + ein.notar + ein.grest + ein.beratung) +
       ' €) – die Kaufnebenkosten werden also anteilig mit abgeschrieben. 8 × 9 % + 4 × 7 % ergeben 100 %: nach zwölf Jahren ist der Sanierungsanteil vollständig abgesetzt. Bei Objekten in Sanierungsgebieten gilt § 7h EStG entsprechend.');
 
     /* ---- Blatt 2: 12-Jahres-Tabelle ---- */

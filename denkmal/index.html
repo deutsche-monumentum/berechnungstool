@@ -3009,26 +3009,37 @@ window.ibKreis = function(){
     a0 = a1;
   });
 
-  /* 2. je Seite von oben nach unten, Ueberlappungen aufloesen, im Bild halten */
+  /* 2. je Seite: Ueberlappungen so aufloesen, dass jeder Text moeglichst
+        nah an seinem Kreisstueck bleibt. Texte, die sich beruehren, werden zu
+        einer Gruppe zusammengefasst; die Gruppe sitzt mittig um die Wunschlage
+        ihrer Texte (statt alles nur nach unten zu schieben).                 */
   ['links', 'rechts'].forEach(function(s){
-    var m = marken.filter(function(x){ return x.seite === s; }).sort(function(a, b){ return a.y - b.y; });
-    var unten = OBEN;
-    m.forEach(function(x){ x.y = Math.max(x.y, unten + x.h / 2); unten = x.y + x.h / 2 + LUECKE; });
-    var oben = UNTEN;
-    for(var k = m.length - 1; k >= 0; k--){
-      var x = m[k]; x.y = Math.min(x.y, oben - x.h / 2); oben = x.y - x.h / 2 - LUECKE;
+    var m = marken.filter(function(x){ return x.seite === s; }).sort(function(a, b){ return a.y0 - b.y0; });
+    var gruppen = m.map(function(x){ return { teile: [x] }; });
+    function lege(g){
+      var H = 0, mitte = 0;
+      g.teile.forEach(function(x, i){ H += x.h + (i ? LUECKE : 0); });
+      /* Mitte der Gruppe = Mittel der Wunschlagen, auf die Gruppenhoehe umgerechnet */
+      var y = 0, summe = 0;
+      g.teile.forEach(function(x){ summe += x.y0 - (y + x.h / 2); y += x.h + LUECKE; });
+      g.oben = Math.min(Math.max(summe / g.teile.length, OBEN), UNTEN - H);
+      g.H = H;
     }
-    /* Wird es auf einer Seite eng (Texte mussten ausweichen), die Texte
-       dieser Seite gleichmaessig ueber die ganze Hoehe verteilen. */
-    var eng = m.some(function(x){ return Math.abs(x.y - (x.py + (x.y0 - x.py))) > 6; });
-    if(m.length >= 4 && eng){
-      var summeH = m.reduce(function(a, x){ return a + x.h; }, 0);
-      var luft = (UNTEN - OBEN - summeH) / (m.length - 1);
-      if(luft >= LUECKE){
-        var y = OBEN;
-        m.forEach(function(x){ x.y = y + x.h / 2; y += x.h + luft; });
+    gruppen.forEach(lege);
+    var neu = true;
+    while(neu){
+      neu = false;
+      for(var k = 1; k < gruppen.length; k++){
+        var a = gruppen[k - 1], b = gruppen[k];
+        if(b.oben < a.oben + a.H + LUECKE){
+          a.teile = a.teile.concat(b.teile); gruppen.splice(k, 1); lege(a); neu = true; break;
+        }
       }
     }
+    gruppen.forEach(function(g){
+      var y = g.oben;
+      g.teile.forEach(function(x){ x.y = y + x.h / 2; y += x.h + LUECKE; });
+    });
   });
 
   /* 3. waagerechte Lage: Text folgt dem Kreisrand, beruehrt ihn aber nie */
@@ -3037,8 +3048,10 @@ window.ibKreis = function(){
     var dx = dy < RT ? Math.sqrt(RT * RT - dy * dy) : 0;
     x.x = x.seite === 'rechts' ? CX + dx : CX - dx;
 
-    var n = x.d.zeilen.length, start = x.y - (n - 1) * ZEILE / 2 + 3.4;
+    var n = x.d.zeilen.length, start = x.y - (n - 1) * ZEILE / 2 + 3.4, breite = 0;
     if(gTexte){
+      var gruppe = document.createElementNS(NS, 'g');
+      gTexte.appendChild(gruppe);
       x.d.zeilen.forEach(function(zeile, k){
         var t = document.createElementNS(NS, 'text');
         t.setAttribute('x', x.x.toFixed(1));
@@ -3046,17 +3059,25 @@ window.ibKreis = function(){
         t.setAttribute('text-anchor', x.seite === 'rechts' ? 'start' : 'end');
         if(/^[-+−–]?[0-9]/.test(zeile)) t.setAttribute('class', 'ib-num');
         t.textContent = zeile;
-        gTexte.appendChild(t);
+        gruppe.appendChild(t);
+        breite = Math.max(breite, zeile.length * 6.3);
       });
+      try{ var bb = gruppe.getBBox(); if(bb && bb.width) breite = bb.width; }catch(e){}
     }
-    /* feine Linie nur, wenn der Text deutlich von seinem Kreisstueck weggerueckt ist */
-    var qy = Math.min(Math.max(x.py, x.y - x.h / 2), x.y + x.h / 2);
-    var P = punkt(x.mitte, RT);
-    if(gLinien && Math.hypot(P[0] - x.x, P[1] - qy) > 10){
-      var A = punkt(x.mitte, R + 1.5);
+    /* Linie vom Kreisstueck zur Mitte der zugewandten Textkante:
+       Text liegt darunter -> Mitte oben, darueber -> Mitte unten,
+       daneben -> Mitte der Seite.                                   */
+    var A = punkt(x.mitte, R + 1.5);
+    var oben = x.y - x.h / 2, unten = x.y + x.h / 2;
+    var links = x.seite === 'rechts' ? x.x : x.x - breite, rechts = links + breite;
+    var Z;
+    if(A[1] < oben - 4)       Z = [ (links + rechts) / 2, oben - 2 ];
+    else if(A[1] > unten + 4) Z = [ (links + rechts) / 2, unten + 1 ];
+    else                      Z = [ x.seite === 'rechts' ? links - 3 : rechts + 3, x.y ];
+    if(gLinien && Math.hypot(Z[0] - A[0], Z[1] - A[1]) > 12){
       var l = document.createElementNS(NS, 'line');
       l.setAttribute('x1', A[0].toFixed(2)); l.setAttribute('y1', A[1].toFixed(2));
-      l.setAttribute('x2', (x.x + (x.seite === 'rechts' ? -2 : 2)).toFixed(2)); l.setAttribute('y2', qy.toFixed(2));
+      l.setAttribute('x2', Z[0].toFixed(2)); l.setAttribute('y2', Z[1].toFixed(2));
       gLinien.appendChild(l);
     }
   });

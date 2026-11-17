@@ -1520,6 +1520,54 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 /* Zwischenueberschriften der Tabelle (GUV Rechnung …) wie "Kapitalbedarf" */
 .ib-tbl tr.ib-band td.ib-t-lbl{ font-weight: 700; }
 
+/* =========================================================================
+   FARBEN BEDIENOBERFLAECHE (Farbsystem "Luftig"): Werkzeugleiste, Knoepfe,
+   Hinweis-, Video- und Formelfenster, interner Bereich.
+   ========================================================================= */
+.ib-doc,
+.ib-intern{
+  --ib-ui-dunkel: #2e2c3f;  /* Mitternacht – dunkle Fenster        */
+  --ib-ui-hell:   #bfbdcb;  /* Wolkengrau – Nebentext auf dunkel    */
+}
+.ib-btn{ background: #fdfcfa; border-color: #4a4859; color: #2e2c3f; }
+.ib-btn--haupt{ background: var(--ib-balken); border-color: #4a4859; color: #fff; }
+@media (hover: hover) and (pointer: fine){
+  .ib-btn:hover{ background: var(--ib-balken); border-color: var(--ib-balken); color: #fff; }
+  .ib-btn--haupt:hover{ background: #2e2c3f; border-color: #2e2c3f; color: #fff; }
+  .ib-tour-btn:hover{ background: #fdfcfa; }
+  .ib-wahl-sel:hover{ color: #706d80; }
+}
+.ib-tour-b,
+.ib-tip-k,
+.ib-video-zu,
+.ib-video-fuss{ color: #e3e2ea; }
+.ib-tour-ziel{ box-shadow: 0 0 0 3pt rgba(112,109,128,.35), 0 0 0 1.2pt var(--ib-balken) !important; }
+@keyframes ib-puls{
+  0%, 100%{ box-shadow: 0 0 0 0 rgba(112,109,128,0); }
+  50%     { box-shadow: 0 0 0 2.5pt rgba(112,109,128,.55); }
+}
+.ib-video-flaeche{ background: #2e2c3f; }
+.ib-video-platzhalter{ background: repeating-linear-gradient(135deg, #34324a 0 12px, #3a3850 12px 24px); }
+/* interner Bereich */
+.ib-wahl-sel,
+.ib-wahl-hinweis{ color: #2e2c3f; }
+.ib-dl-leer{ color: #bfbdcb; }
+.ib-d2-weg{ color: #706d80; }
+.ib-wz-name,
+.ib-wz-feld,
+.ib-intern-titel,
+.ib-objekt-titel,
+.ib-kunde-name{ color: #2e2c3f; }
+.ib-wz-feld{ background: #fdfcfa; border-color: #4a4859; }
+.ib-wz-feld::placeholder{ color: #706d80; }
+.ib-wz-trenn{ background: #bfbdcb; }
+.ib-wz-zu,
+.ib-intern-info,
+.ib-leer,
+.ib-kunde-datei{ color: #706d80; }
+.ib-kunde-klein{ color: #4a4859; }
+.ib-kunde{ border-bottom-color: #e3e2ea; }
+
 /* Papierhintergrund Wolke – nur am Bildschirm */
 @media screen{
   .ib-doc,

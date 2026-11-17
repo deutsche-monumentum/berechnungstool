@@ -1481,6 +1481,9 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
   --ib-txt:    #2e2c3f;   /* Mitternacht – Schrift                */
   --ib-txt-in: #2e2c3f;   /* Mitternacht – Zahlen                 */
   --ib-green:  #d3e2cf;   /* Salbei – Ergebnisfelder (gruen)      */
+  --ib-blue:   #4a4859;   /* Tinte weich – Tabellen-/Summenlinien */
+  --ib-blue-dk:#4a4859;   /* Tinte weich – Auswahlkreis, Info-i   */
+  --ib-border: #706d80;   /* Nebelgrau – Rahmen der Kaestchen     */
 }
 .ib-title,
 .ib-h,
@@ -1506,6 +1509,14 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 .ib-kpi-t small,
 .ib-fazit-txt span,
 .ib-f .ib-note-sm{ color: #2e2c3f !important; }
+/* Linien: kraeftige Linien Tinte weich, feine Rahmen Nebelgrau */
+.ib-out--dk,
+.ib-out--green,
+.ib-cb,
+.ib-radio{ border-color: #706d80; }
+.ib-sum-line{ border-top-color: #4a4859; border-bottom-color: #4a4859; }
+.ib-cb--on::after{ border-color: #4a4859; }
+.ib-resband{ border-top-color: #706d80; border-bottom-color: #706d80; }
 /* Zwischenueberschriften der Tabelle (GUV Rechnung …) wie "Kapitalbedarf" */
 .ib-tbl tr.ib-band td.ib-t-lbl{ font-weight: 700; }
 

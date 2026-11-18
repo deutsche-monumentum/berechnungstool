@@ -2670,7 +2670,7 @@ var IB_MWST = 19;
     var p = projekt();
     if(!p) return;
     fill(selE, p.einheiten.map(function(e){ return e.nummer; }));
-    selE.selectedIndex = 0;                 /* erste Wohnung des Projekts */
+    selE.value = '0';                       /* erste Wohnung des Projekts */
     projektFelder(p);
     einheitFelder(p.einheiten[0]);
   }
@@ -2680,7 +2680,7 @@ var IB_MWST = 19;
   });
   selE.addEventListener('change', function(){
     var p = projekt();
-    if(p) einheitFelder(p.einheiten[selE.selectedIndex]);
+    if(p) einheitFelder(p.einheiten[Number(selE.value)]);
   });
   var reset = $('ib-btn-reset');
   if(reset) reset.addEventListener('click', function(){ window.ibEkFrei = false; kistLetzt = null; if(IB_PROJEKTE.length){ var pr = projekt(); if(pr) projektFelder(pr); ueberschussWahl(); window.ibBerechnen(); } });
@@ -2721,7 +2721,7 @@ var IB_MWST = 19;
           if(nr(pa.einheiten[k].nummer) === wnr){ treffer = k; break; }
         }
       }
-      if(treffer >= 0){ selE.selectedIndex = treffer; einheitFelder(pa.einheiten[treffer]); }
+      if(treffer >= 0){ selE.value = String(treffer); einheitFelder(pa.einheiten[treffer]); }
     }
     var z = Number(String(q.get('zve') || '').replace(/[^0-9]/g, ''));
     if(z > 0) setze('ib-zve-1-4', z, 'euro');
@@ -4066,19 +4066,24 @@ window.ibZahl = function(el){
   sel.parentNode.insertBefore(feld, sel.nextSibling);
 
   function andere(){ return sel.querySelector('option[value="' + ANDERE + '"]'); }
+  var vorher = '';
+  function merken(){ if(sel.value && sel.value !== ANDERE) vorher = sel.value; }
   function zusatz(){
+    merken();
     var o = andere();
-    if(o && o === sel.lastElementChild) return;
+    if(o && o === sel.firstElementChild) return;
     if(!o){ o = document.createElement('option'); o.value = ANDERE; o.textContent = 'Andere Einheit …'; }
-    sel.appendChild(o);                               /* immer als letzter Eintrag */
+    sel.insertBefore(o, sel.firstChild);              /* immer als erster Eintrag */
   }
   zusatz();
   new MutationObserver(zusatz).observe(sel, { childList: true });
 
-  var vorher = sel.selectedIndex;
   function zurueck(){
     feld.style.display = 'none'; sel.style.display = '';
-    if(sel.value === ANDERE) sel.selectedIndex = Math.max(0, Math.min(vorher, sel.options.length - 2));
+    if(sel.value === ANDERE){
+      sel.value = vorher;
+      if(sel.value !== vorher || !sel.value) sel.selectedIndex = sel.options.length > 1 ? 1 : 0;
+    }
   }
   sel.addEventListener('change', function(e){
     if(sel.value === ANDERE){
@@ -4087,7 +4092,7 @@ window.ibZahl = function(el){
       sel.style.display = 'none'; feld.style.display = '';
       feld.value = ''; feld.focus();
     } else {
-      vorher = sel.selectedIndex;
+      merken();
     }
   }, true);
 
@@ -4097,9 +4102,9 @@ window.ibZahl = function(el){
     var t = feld.value.trim();
     if(!t){ zurueck(); return; }
     var o = sel.querySelector('option[data-frei]');
-    if(!o){ o = document.createElement('option'); o.setAttribute('data-frei', '1'); sel.insertBefore(o, andere()); }
+    if(!o){ o = document.createElement('option'); o.setAttribute('data-frei', '1'); sel.insertBefore(o, andere().nextSibling); }
     o.value = t; o.textContent = t;
-    sel.value = t; vorher = sel.selectedIndex;
+    sel.value = t; merken();
     feld.style.display = 'none'; sel.style.display = '';
     sel.dispatchEvent(new Event('change', { bubbles: true }));
   }

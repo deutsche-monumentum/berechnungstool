@@ -4189,4 +4189,50 @@ window.ibZahl = function(el){
   feld.addEventListener('input',  function(e){ e.stopPropagation(); });
 })();
 </script>
+<script>
+/* =========================================================================
+   RUECKLAGE FOLGT DER FLAECHE (18.11.2026): Wird die Gesamtflaeche von Hand
+   geaendert (z. B. bei einer Einheit, die nicht in der Liste ist), rechnet
+   sich die Ruecklage p.a. sofort neu: Flaeche × Satz je m² (7,10 € laut
+   Grundeinstellung). Hat jemand die Ruecklage selbst ueberschrieben, bleibt
+   sein Wert stehen – bis zum Wechsel der Wohnung oder „Zuruecksetzen“.
+   ========================================================================= */
+(function(){
+  var fl = document.getElementById('ib-gesamtflaeche'), rl = document.getElementById('ib-ruecklage');
+  if(!fl || !rl) return;
+  function zahl(el){
+    var t = String(el.textContent || '').replace(/[^0-9,\-]/g, '').replace(',', '.');
+    var n = parseFloat(t); return isNaN(n) ? null : n;
+  }
+  var vonHand = false, satz = null;
+  function satzMerken(){
+    var f = zahl(fl), r = zahl(rl);
+    if(f && r) satz = Math.round(r / f * 100) / 100;   /* Satz je m² ist immer ein Cent-Betrag (7,10 €) */
+  }
+  function satzJetzt(){
+    if(satz) return satz;
+    if(window.IB_REGELN && IB_REGELN.ruecklageQm) return IB_REGELN.ruecklageQm;
+    return 7.1;
+  }
+  setTimeout(satzMerken, 0);
+  rl.addEventListener('input', function(){ vonHand = true; });
+  fl.addEventListener('focus', function(){ if(!vonHand) satzMerken(); });
+  fl.addEventListener('input', function(){
+    if(vonHand) return;
+    var f = zahl(fl);
+    if(f === null) return;
+    var wert = Math.round(f * satzJetzt() * 100) / 100;
+    rl.textContent = f ? wert.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €' : ' ';
+    if(window.ibEinpassen) window.ibEinpassen(rl);
+  });
+  /* neue Wohnung oder Zuruecksetzen: Ruecklage wieder automatisch */
+  function frei(){ vonHand = false; setTimeout(satzMerken, 0); }
+  var sel = document.getElementById('ib-einheit'), prj = document.getElementById('ib-projekt'), rs = document.getElementById('ib-btn-reset');
+  if(sel) sel.addEventListener('change', frei);
+  if(prj) prj.addEventListener('change', frei);
+  if(rs)  rs.addEventListener('click', frei);
+  /* Satz auch nach dem Laden der Daten aus der Datenbank neu merken */
+  if(window.ibDatenBereit && window.ibDatenBereit.then) window.ibDatenBereit.then(function(){ setTimeout(satzMerken, 0); });
+})();
+</script>
 </body></html>

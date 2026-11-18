@@ -1609,6 +1609,12 @@ a.ib-btn{ text-decoration: none; }   /* Rueckkehr-Knopf ist ein Link */
 .ib-video-tab.ib-an{ color: #1c1a28; }
 .ib-video-tab.ib-an::before{ background: var(--ib-balken); }
 
+#ib-einheit-frei{
+  font: inherit; color: var(--ib-txt-in); background: #fff;
+  border: var(--ib-rahmen) solid var(--ib-border); outline: none;
+  text-align: center; padding: 0 2pt; box-sizing: border-box;
+}
+#ib-einheit-frei::placeholder{ color: #706d80; }
 /* Papierhintergrund Wolke – nur am Bildschirm */
 @media screen{
   .ib-doc,
@@ -4112,4 +4118,70 @@ window.ibZahl = function(el){
 
 
 
+<script>
+/* =========================================================================
+   EINHEIT VON HAND (18.11.2026): Ist eine Wohnung nicht in der Liste, im
+   Feld „Einheit“ „Andere Einheit …“ wählen und die Bezeichnung eintippen.
+   Die Werte der Wohnung (Fläche, Kaufpreis, Miete …) dann von Hand eintragen.
+   ========================================================================= */
+(function(){
+  var sel = document.getElementById('ib-einheit');
+  if(!sel) return;
+  var ANDERE = '__andere__';
+  var feld = document.createElement('input');
+  feld.type = 'text'; feld.id = 'ib-einheit-frei';
+  feld.className = 'ib-f ib-f--ctr';
+  feld.placeholder = 'Einheit eingeben';
+  feld.setAttribute('aria-label', 'Einheit von Hand eingeben');
+  feld.autocomplete = 'off';
+  feld.style.display = 'none';
+  sel.parentNode.insertBefore(feld, sel.nextSibling);
+
+  function andere(){ return sel.querySelector('option[value="' + ANDERE + '"]'); }
+  function zusatz(){
+    var o = andere();
+    if(o && o === sel.lastElementChild) return;
+    if(!o){ o = document.createElement('option'); o.value = ANDERE; o.textContent = 'Andere Einheit …'; }
+    sel.appendChild(o);                               /* immer als letzter Eintrag */
+  }
+  zusatz();
+  new MutationObserver(zusatz).observe(sel, { childList: true });
+
+  var vorher = sel.selectedIndex;
+  function zurueck(){
+    feld.style.display = 'none'; sel.style.display = '';
+    if(sel.value === ANDERE) sel.selectedIndex = Math.max(0, Math.min(vorher, sel.options.length - 2));
+  }
+  sel.addEventListener('change', function(e){
+    if(sel.value === ANDERE){
+      e.stopImmediatePropagation();                   /* noch nicht rechnen, erst Bezeichnung abwarten */
+      feld.style.width = sel.offsetWidth + 'px';
+      sel.style.display = 'none'; feld.style.display = '';
+      feld.value = ''; feld.focus();
+    } else {
+      vorher = sel.selectedIndex;
+    }
+  }, true);
+
+  var fertig = false;
+  function uebernehmen(){
+    if(fertig) return; fertig = true; setTimeout(function(){ fertig = false; }, 0);
+    var t = feld.value.trim();
+    if(!t){ zurueck(); return; }
+    var o = sel.querySelector('option[data-frei]');
+    if(!o){ o = document.createElement('option'); o.setAttribute('data-frei', '1'); sel.insertBefore(o, andere()); }
+    o.value = t; o.textContent = t;
+    sel.value = t; vorher = sel.selectedIndex;
+    feld.style.display = 'none'; sel.style.display = '';
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  feld.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); uebernehmen(); }
+    else if(e.key === 'Escape'){ e.preventDefault(); feld.value = ''; zurueck(); }
+  });
+  feld.addEventListener('blur', uebernehmen);
+  feld.addEventListener('change', function(e){ e.stopPropagation(); });
+  feld.addEventListener('input',  function(e){ e.stopPropagation(); });
+})();
+</script>
 </body></html>
